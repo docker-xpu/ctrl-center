@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
-import xpu.ctrl.docker.dataobject.File;
+import xpu.ctrl.docker.dataobject.ImageFile;
 import xpu.ctrl.docker.service.FileService;
 
 import java.io.ByteArrayInputStream;
@@ -39,16 +39,16 @@ public class FileServiceImpl implements FileService {
     private GridFSBucket gridFSBucket;
 
     @Override
-    public FileVO saveBigFile(File file) {
-        Binary content = file.getContent();
+    public FileVO saveBigFile(ImageFile imageFile) {
+        Binary content = imageFile.getContent();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content.getData());
-        ObjectId objectId = gridFsTemplate.store(byteArrayInputStream, file.getName());
+        ObjectId objectId = gridFsTemplate.store(byteArrayInputStream, imageFile.getName());
         String saveResultId = objectId.toString();
         GridFSFile one = gridFsTemplate.findOne(query(Criteria.where("_id").is(saveResultId)));
-        File toFile = toFile(one);
-        toFile.setId(saveResultId);
-        toFile.setMd5(one.getMD5());
-        return toVO(toFile);
+        ImageFile toImageFile = toFile(one);
+        toImageFile.setId(saveResultId);
+        toImageFile.setMd5(one.getMD5());
+        return toVO(toImageFile);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public Optional<File> getBigFileById(String id) {
+    public Optional<ImageFile> getBigFileById(String id) {
         GridFsResource[] txtFiles = gridFsTemplate.getResources("*");
-        File file;
+        ImageFile imageFile;
         for (GridFsResource txtFile : txtFiles) {
             BsonObjectId bsonObjectId = (BsonObjectId) txtFile.getId();
             String fileId = bsonObjectId.getValue().toString();
@@ -71,11 +71,11 @@ public class FileServiceImpl implements FileService {
                 long length = one.getLength();//字节数
                 try {
                     InputStream inputStream = txtFile.getInputStream();
-                    file = new File(fileName, length, new Binary(IOUtils.toByteArray(inputStream)));
-                    file.setMd5(MD5Util.getMD5(inputStream));
-                    file.setUploadDate(uploadDate);
-                    file.setId(id);
-                    return Optional.of(file);
+                    imageFile = new ImageFile(fileName, length, new Binary(IOUtils.toByteArray(inputStream)));
+                    imageFile.setMd5(MD5Util.getMD5(inputStream));
+                    imageFile.setUploadDate(uploadDate);
+                    imageFile.setId(id);
+                    return Optional.of(imageFile);
                 } catch (IOException | NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
@@ -87,9 +87,9 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FileVO> listBigFiles() {
         //获取所有文件
-        List<File> returnList = new ArrayList<>();
+        List<ImageFile> returnList = new ArrayList<>();
         GridFsResource[] txtFiles = gridFsTemplate.getResources("*");
-        File file;
+        ImageFile imageFile;
         for (GridFsResource txtFile : txtFiles) {
             BsonObjectId bsonObjectId = (BsonObjectId) txtFile.getId();
             String fileId = bsonObjectId.getValue().toString();
@@ -99,16 +99,16 @@ public class FileServiceImpl implements FileService {
             Date uploadDate = one.getUploadDate();
             long length = one.getLength();//字节数
 
-            file = new File(fileName, length, null);
-            file.setMd5(one.getMD5()); //避免MD5计算导致IO负载过大的问题
-            file.setId(fileId);
-            file.setUploadDate(uploadDate);
-            returnList.add(file);
+            imageFile = new ImageFile(fileName, length, null);
+            imageFile.setMd5(one.getMD5()); //避免MD5计算导致IO负载过大的问题
+            imageFile.setId(fileId);
+            imageFile.setUploadDate(uploadDate);
+            returnList.add(imageFile);
         }
         return toFileVO(returnList);
     }
 
-    private File toFile(GridFSFile gridFSFile){
+    private ImageFile toFile(GridFSFile gridFSFile){
         GridFSDownloadStream gridFSDownloadStream =
                 gridFSBucket.openDownloadStream(gridFSFile.getObjectId());
         //创建gridFsResource，用于获取流对象
@@ -116,27 +116,27 @@ public class FileServiceImpl implements FileService {
         //获取流中的数据
         try {
             byte[] bytes = IOUtils.toByteArray(gridFsResource.getInputStream());
-            return new File(gridFSFile.getFilename(), gridFSFile.getLength(), new Binary(bytes));
+            return new ImageFile(gridFSFile.getFilename(), gridFSFile.getLength(), new Binary(bytes));
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    private List<FileVO> toFileVO(List<File> list){
+    private List<FileVO> toFileVO(List<ImageFile> list){
         List<FileVO> fileVOList = new ArrayList<>();
-        for(File file: list){
-            fileVOList.add(toVO(file));
+        for(ImageFile imageFile : list){
+            fileVOList.add(toVO(imageFile));
         }
         return fileVOList;
     }
 
-    private FileVO toVO(File file){
+    private FileVO toVO(ImageFile imageFile){
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         FileVO fileVO = new FileVO();
-        BeanUtils.copyProperties(file, fileVO);
-        fileVO.setSizeStr(String.format("%.2f M", file.getSize()/1024.0/1024.0));
-        fileVO.setUploadDateStr(format.format(file.getUploadDate()));
+        BeanUtils.copyProperties(imageFile, fileVO);
+        fileVO.setSizeStr(String.format("%.2f M", imageFile.getSize()/1024.0/1024.0));
+        fileVO.setUploadDateStr(format.format(imageFile.getUploadDate()));
         return fileVO;
     }
 }

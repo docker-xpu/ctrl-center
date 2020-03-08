@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import xpu.ctrl.docker.dataobject.File;
+import xpu.ctrl.docker.dataobject.ImageFile;
 import xpu.ctrl.docker.enums.ResultEnum;
 import xpu.ctrl.docker.exception.CtrlCenterException;
 import xpu.ctrl.docker.service.FileService;
@@ -46,7 +46,7 @@ public class ImagesController {
     /** 下载文件 */
     @GetMapping("pull")
     public ResponseEntity<Object> serveFile(String id) {
-        Optional<File> file = fileService.getBigFileById(id);
+        Optional<ImageFile> file = fileService.getBigFileById(id);
         return file.<ResponseEntity<Object>>map(value -> ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=" + new String(
                         value.getName().getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1))
@@ -60,7 +60,7 @@ public class ImagesController {
     public ResultVO handleFileUpload(@RequestParam("file") MultipartFile file) {
         FileVO returnFile;
         try {
-            File f = new File(file.getOriginalFilename(), file.getSize(), new Binary(file.getBytes()));
+            ImageFile f = new ImageFile(file.getOriginalFilename(), file.getSize(), new Binary(file.getBytes()));
             f.setMd5(MD5Util.getMD5(file.getInputStream()));
             returnFile = fileService.saveBigFile(f);
             return ResultVOUtil.success(String.format("http://%s:%s/images/pull?id=%s", serverAddress, serverPort, returnFile.getId()));

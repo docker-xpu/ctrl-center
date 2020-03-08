@@ -18,4 +18,5 @@ spring:
     request-context-attribute: request
     suffix: .ftl
 server:
-  port: 8090
+  address: 127.0.0.1
+  port: 8080
