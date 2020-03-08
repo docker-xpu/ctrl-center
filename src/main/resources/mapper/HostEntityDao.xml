@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xpu.ctrl.docker.dao.HostEntityDao">
+
+    <resultMap type="xpu.ctrl.docker.entity.HostEntity" id="HostEntityMap">
+        <result property="hostId" column="host_id" jdbcType="INTEGER"/>
+        <result property="hostName" column="host_name" jdbcType="VARCHAR"/>
+        <result property="hostIp" column="host_ip" jdbcType="VARCHAR"/>
+        <result property="hostCpuNumber" column="host_cpu_number" jdbcType="INTEGER"/>
+        <result property="hostOs" column="host_os" jdbcType="VARCHAR"/>
+        <result property="hostStatus" column="host_status" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="HostEntityMap">
+        select
+          host_id, host_name, host_ip, host_cpu_number, host_os, host_status
+        from mydocker.host_entity
+        where host_id = #{hostId}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="HostEntityMap">
+        select
+          host_id, host_name, host_ip, host_cpu_number, host_os, host_status
+        from mydocker.host_entity
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="HostEntityMap">
+        select
+          host_id, host_name, host_ip, host_cpu_number, host_os, host_status
+        from mydocker.host_entity
+        <where>
+            <if test="hostId != null">
+                and host_id = #{hostId}
+            </if>
+            <if test="hostName != null and hostName != ''">
+                and host_name = #{hostName}
+            </if>
+            <if test="hostIp != null and hostIp != ''">
+                and host_ip = #{hostIp}
+            </if>
+            <if test="hostCpuNumber != null">
+                and host_cpu_number = #{hostCpuNumber}
+            </if>
+            <if test="hostOs != null and hostOs != ''">
+                and host_os = #{hostOs}
+            </if>
+            <if test="hostStatus != null">
+                and host_status = #{hostStatus}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="hostId" useGeneratedKeys="true">
+        insert into mydocker.host_entity(host_name, host_ip, host_cpu_number, host_os, host_status)
+        values (#{hostName}, #{hostIp}, #{hostCpuNumber}, #{hostOs}, #{hostStatus})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update mydocker.host_entity
+        <set>
+            <if test="hostName != null and hostName != ''">
+                host_name = #{hostName},
+            </if>
+            <if test="hostIp != null and hostIp != ''">
+                host_ip = #{hostIp},
+            </if>
+            <if test="hostCpuNumber != null">
+                host_cpu_number = #{hostCpuNumber},
+            </if>
+            <if test="hostOs != null and hostOs != ''">
+                host_os = #{hostOs},
+            </if>
+            <if test="hostStatus != null">
+                host_status = #{hostStatus},
+            </if>
+        </set>
+        where host_id = #{hostId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from mydocker.host_entity where host_id = #{hostId}
+    </delete>
+
+</mapper>
