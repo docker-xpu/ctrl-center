@@ -2,15 +2,10 @@ package xpu.ctrl.docker.dataobject;
 
 import lombok.Data;
 import org.bson.types.Binary;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.Date;
 
 @Data
-@Document
 public class File {
-    @Id  // 主键
     private String id;
     private String name; // 文件名称
     private String contentType; // 文件类型
