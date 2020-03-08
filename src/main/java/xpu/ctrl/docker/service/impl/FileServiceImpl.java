@@ -42,7 +42,7 @@ public class FileServiceImpl implements FileService {
     public FileVO saveBigFile(File file) {
         Binary content = file.getContent();
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content.getData());
-        ObjectId objectId = gridFsTemplate.store(byteArrayInputStream, file.getName(), file.getContentType());
+        ObjectId objectId = gridFsTemplate.store(byteArrayInputStream, file.getName());
         String saveResultId = objectId.toString();
         GridFSFile one = gridFsTemplate.findOne(query(Criteria.where("_id").is(saveResultId)));
         File toFile = toFile(one);
@@ -69,11 +69,9 @@ public class FileServiceImpl implements FileService {
                 String fileName = one.getFilename();
                 Date uploadDate = one.getUploadDate();
                 long length = one.getLength();//字节数
-                String contentType = txtFile.getContentType();
                 try {
                     InputStream inputStream = txtFile.getInputStream();
-                    file = new File(fileName, contentType, length, new Binary(IOUtils.toByteArray(inputStream)));
-                    file.setPath(id);
+                    file = new File(fileName, length, new Binary(IOUtils.toByteArray(inputStream)));
                     file.setMd5(MD5Util.getMD5(inputStream));
                     file.setUploadDate(uploadDate);
                     file.setId(id);
@@ -101,11 +99,8 @@ public class FileServiceImpl implements FileService {
             Date uploadDate = one.getUploadDate();
             long length = one.getLength();//字节数
 
-            String contentType = txtFile.getContentType();
-            file = new File(fileName, contentType, length, null);
+            file = new File(fileName, length, null);
             file.setMd5(one.getMD5()); //避免MD5计算导致IO负载过大的问题
-            file.setPath(fileId);
-            file.setPath(fileId);
             file.setId(fileId);
             file.setUploadDate(uploadDate);
             returnList.add(file);
@@ -121,7 +116,7 @@ public class FileServiceImpl implements FileService {
         //获取流中的数据
         try {
             byte[] bytes = IOUtils.toByteArray(gridFsResource.getInputStream());
-            return new File(gridFSFile.getFilename(), Objects.requireNonNull(gridFSFile.getMetadata()).getString("_contentType"), gridFSFile.getLength(), new Binary(bytes));
+            return new File(gridFSFile.getFilename(), gridFSFile.getLength(), new Binary(bytes));
         } catch (IOException e) {
             e.printStackTrace();
         }

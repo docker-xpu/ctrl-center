@@ -60,8 +60,7 @@ public class ImagesController {
     public ResultVO handleFileUpload(@RequestParam("file") MultipartFile file) {
         FileVO returnFile;
         try {
-            File f = new File(file.getOriginalFilename(), file.getContentType(), file.getSize(),
-                    new Binary(file.getBytes()));
+            File f = new File(file.getOriginalFilename(), file.getSize(), new Binary(file.getBytes()));
             f.setMd5(MD5Util.getMD5(file.getInputStream()));
             returnFile = fileService.saveBigFile(f);
             return ResultVOUtil.success(String.format("http://%s:%s/images/pull?id=%s", serverAddress, serverPort, returnFile.getId()));
