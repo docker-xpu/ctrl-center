@@ -1,5 +1,7 @@
 package xpu.ctrl.docker.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +10,7 @@ import java.io.Serializable;
  * @author makejava
  * @since 2020-03-08 14:34:07
  */
+@Data
 public class HostLicense implements Serializable {
     private static final long serialVersionUID = -56933321423587280L;
     
@@ -16,30 +19,4 @@ public class HostLicense implements Serializable {
     private String licenseName;
     
     private String licensePasswd;
-
-
-    public Integer getLicenseId() {
-        return licenseId;
-    }
-
-    public void setLicenseId(Integer licenseId) {
-        this.licenseId = licenseId;
-    }
-
-    public String getLicenseName() {
-        return licenseName;
-    }
-
-    public void setLicenseName(String licenseName) {
-        this.licenseName = licenseName;
-    }
-
-    public String getLicensePasswd() {
-        return licensePasswd;
-    }
-
-    public void setLicensePasswd(String licensePasswd) {
-        this.licensePasswd = licensePasswd;
-    }
-
 }

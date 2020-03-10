@@ -27,9 +27,7 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/images")
-public class ImagesController {
-//    @Value("${server.address}")
-//    private String serverAddress;
+public class MirrorImagesController {
 
     @Value("${server.port}")
     private String serverPort;
@@ -37,13 +35,13 @@ public class ImagesController {
     @Autowired
     private FileService fileService;
 
-    /** 文件列表 */
+    // 文件列表
     @GetMapping("list")
     public ResultVO index() {
         return ResultVOUtil.success(fileService.listBigFiles());
     }
 
-    /** 下载文件 */
+    // 下载文件
     @GetMapping("pull")
     public ResponseEntity<Object> serveFile(String id) {
         Optional<ImageFile> file = fileService.getBigFileById(id);
@@ -55,7 +53,7 @@ public class ImagesController {
                 .body(value.getContent().getData())).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("File was not fount"));
     }
 
-    /** 上传接口 */
+    // 上传接口
     @PostMapping("upload")
     public ResultVO handleFileUpload(@RequestParam("file") MultipartFile file) {
         FileVO returnFile;
@@ -69,7 +67,7 @@ public class ImagesController {
         }
     }
 
-    /** 删除文件 */
+    // 删除文件
     @GetMapping("delete")
     public ResultVO deleteFile(String id) {
         try {
