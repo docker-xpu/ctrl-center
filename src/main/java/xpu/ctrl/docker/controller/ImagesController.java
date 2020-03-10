@@ -28,8 +28,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/images")
 public class ImagesController {
-    @Value("${server.address}")
-    private String serverAddress;
+//    @Value("${server.address}")
+//    private String serverAddress;
 
     @Value("${server.port}")
     private String serverPort;
@@ -63,7 +63,7 @@ public class ImagesController {
             ImageFile f = new ImageFile(file.getOriginalFilename(), file.getSize(), new Binary(file.getBytes()));
             f.setMd5(MD5Util.getMD5(file.getInputStream()));
             returnFile = fileService.saveBigFile(f);
-            return ResultVOUtil.success(String.format("http://%s:%s/images/pull?id=%s", serverAddress, serverPort, returnFile.getId()));
+            return ResultVOUtil.success(String.format("http://IP:%s/images/pull?id=%s", serverPort, returnFile.getId()));
         } catch (IOException | NoSuchAlgorithmException ex) {
             throw new CtrlCenterException(ResultEnum.UPLOAD_ERROR);
         }

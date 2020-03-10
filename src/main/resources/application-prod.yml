@@ -5,12 +5,14 @@ spring:
       max-request-size: 2048MB
   data:
     mongodb:
-      uri: mongodb://192.168.2.2:27017/images
+      #uri: mongodb://192.168.2.2:27017/images
+      uri: mongodb://mongodb:27017/images
       database: images
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/mydocker?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8&useSSL=false
-    username: root
+    # url: jdbc:mysql://127.0.0.1:3306/mydocker?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    url: jdbc:mysql://mysql:3306/mydocker?serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8&useSSL=false
+    username: docker
     password: 123456
   freemarker:
     template-loader-path: classpath:/templates
@@ -23,7 +25,6 @@ spring:
     request-context-attribute: request
     suffix: .ftl
 server:
-  address: 127.0.0.1
   port: 8080
 
 mybatis:

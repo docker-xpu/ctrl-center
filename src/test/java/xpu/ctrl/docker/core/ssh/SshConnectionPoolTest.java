@@ -32,6 +32,7 @@ public class SshConnectionPoolTest {
             Connection connectionByIP = instance.getConnectionByIP("192.168.2.2");
             Session openSession = connectionByIP.openSession();
             openSession.execCommand("ls");
+
             InputStream stdout2 = new StreamGobbler(openSession.getStdout());
             BufferedReader b2 = new BufferedReader(new InputStreamReader(stdout2));
 
