@@ -60,7 +60,7 @@ public class SshConnectionPool {
         conn.connect();
         boolean isAuthenticated = conn.authenticateWithPassword(username, password);
         if (!isAuthenticated) throw new IOException("Authentication failed.");
-        log.info("【成功获取SSH连接】{}", conn);
+        log.info("【成功获取SSH连接】{}", host);
         return conn;
     }
 }

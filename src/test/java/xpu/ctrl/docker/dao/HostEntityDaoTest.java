@@ -16,7 +16,7 @@ public class HostEntityDaoTest {
 
     @Test
     public void queryAllByLimit() {
-        HostEntity hostEntity = hostEntityDao.queryById(12121);
+        HostEntity hostEntity = hostEntityDao.queryById("12.12.1.1");
         System.out.println(hostEntity);
     }
 }

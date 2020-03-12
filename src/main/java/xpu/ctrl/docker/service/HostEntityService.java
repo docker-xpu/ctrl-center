@@ -1,23 +1,25 @@
 package xpu.ctrl.docker.service;
 
 import xpu.ctrl.docker.entity.HostEntity;
+import xpu.ctrl.docker.vo.HostEntityVO;
+
 import java.util.List;
 
 /**
  * (HostEntity)表服务接口
  *
  * @author makejava
- * @since 2020-03-08 14:24:19
+ * @since 2020-03-12 12:29:32
  */
 public interface HostEntityService {
 
     /**
      * 通过ID查询单条数据
      *
-     * @param hostId 主键
+     * @param hostIp 主键
      * @return 实例对象
      */
-    HostEntity queryById(Integer hostId);
+    HostEntity queryById(String hostIp);
 
     /**
      * 查询多条数据
@@ -47,9 +49,10 @@ public interface HostEntityService {
     /**
      * 通过主键删除数据
      *
-     * @param hostId 主键
+     * @param hostIp 主键
      * @return 是否成功
      */
-    boolean deleteById(Integer hostId);
+    boolean deleteById(String hostIp);
 
+    List<HostEntityVO> getAllHost();
 }

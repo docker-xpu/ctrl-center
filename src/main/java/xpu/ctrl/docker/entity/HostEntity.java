@@ -1,29 +1,31 @@
 package xpu.ctrl.docker.entity;
 
 import lombok.Data;
-import xpu.ctrl.docker.enums.RunStatusEnum;
+import org.hibernate.annotations.DynamicUpdate;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.io.Serializable;
 
 /**
  * (HostEntity)实体类
  *
  * @author makejava
- * @since 2020-03-08 14:24:19
+ * @since 2020-03-12 12:29:30
  */
 @Data
+@Entity
+@DynamicUpdate
 public class HostEntity implements Serializable {
-    private static final long serialVersionUID = -53107980982678477L;
-    
-    private Integer hostId;
+    private static final long serialVersionUID = 324943389590812974L;
+    @Id
+    private String hostIp;
     
     private String hostName;
-    
-    private String hostIp;
     
     private Integer hostCpuNumber;
     
     private String hostOs;
     
-    private Integer hostStatus = RunStatusEnum.RUNNING.getCode();
+    private Integer hostStatus;
 }

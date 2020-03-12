@@ -1,7 +1,6 @@
 package xpu.ctrl.docker.dao;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Repository;
 import xpu.ctrl.docker.entity.HostEntity;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.List;
  * (HostEntity)表数据库访问层
  *
  * @author makejava
- * @since 2020-03-08 14:24:19
+ * @since 2020-03-12 12:29:31
  */
 @Mapper
 public interface HostEntityDao {
@@ -18,10 +17,10 @@ public interface HostEntityDao {
     /**
      * 通过ID查询单条数据
      *
-     * @param hostId 主键
+     * @param hostIp 主键
      * @return 实例对象
      */
-    HostEntity queryById(Integer hostId);
+    HostEntity queryById(String hostIp);
 
     /**
      * 查询指定行数据
@@ -60,9 +59,9 @@ public interface HostEntityDao {
     /**
      * 通过主键删除数据
      *
-     * @param hostId 主键
+     * @param hostIp 主键
      * @return 影响行数
      */
-    int deleteById(Integer hostId);
+    int deleteById(String hostIp);
 
 }

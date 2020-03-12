@@ -7,7 +7,7 @@ import java.util.List;
  * (HostLicense)表服务接口
  *
  * @author makejava
- * @since 2020-03-08 14:34:07
+ * @since 2020-03-12 12:26:40
  */
 public interface HostLicenseService {
 

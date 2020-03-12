@@ -12,9 +12,9 @@ import java.util.List;
  * (HostLicense)表服务实现类
  *
  * @author makejava
- * @since 2020-03-08 14:34:07
+ * @since 2020-03-12 12:26:41
  */
-@Service("hostLicenseService")
+@Service
 public class HostLicenseServiceImpl implements HostLicenseService {
     @Resource
     private HostLicenseDao hostLicenseDao;

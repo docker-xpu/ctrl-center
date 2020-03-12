@@ -1,21 +1,38 @@
 package xpu.ctrl.docker.controller;
 
 import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xpu.ctrl.docker.core.ssh.SshConnectionPool;
 import xpu.ctrl.docker.dao.HostLicenseDao;
+import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.entity.HostLicense;
+import xpu.ctrl.docker.enums.RunStatusEnum;
+import xpu.ctrl.docker.repository.HostEntityRepository;
+import xpu.ctrl.docker.service.HostEntityService;
 import xpu.ctrl.docker.util.ResultVOUtil;
+import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 //物理主机
 @Slf4j
@@ -26,6 +43,12 @@ public class HostInstanceController {
 
     @Resource
     private HostLicenseDao hostLicenseDao;
+
+    @Autowired
+    private HostEntityService hostEntityService;
+
+    @Autowired
+    private HostEntityRepository hostEntityRepository;
 
     // 测试SSH连接
     @PostMapping("test-conn")
@@ -50,24 +73,75 @@ public class HostInstanceController {
     // 初始化主机
     @PostMapping("init")
     public ResultVO initHost(String ip, Integer licenseId){
+        HostLicense hostLicense = hostLicenseDao.queryById(licenseId);
+        if(hostLicense == null) return ResultVOUtil.error(1, "凭据选择错误");
+        Connection root = instance.getConnectionByIP(ip, "root", hostLicense.getLicensePasswd());
+        Session session;
+        if(root != null){
+            try {
+                session = root.openSession();
+                SCPClient scpClient = new SCPClient(root);
+                ClassPathResource classPathResource = new ClassPathResource("deploy.sh");
+                InputStream inputStream =classPathResource.getInputStream();
+                scpClient.put(IOUtils.toByteArray(inputStream), "deploy.sh", "/root");
+                session.close();
+                session = root.openSession();
+                //session.execCommand("sh deploy.sh " + ip);
+                session.execCommand(String.format("sh deploy.sh %s v1.38 6060", ip));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         return ResultVOUtil.success();
     }
 
     // 初始化完成会调用此接口
     @RequestMapping("init-notify")
     public ResultVO initHostResult(String ip){
+        log.info("【主机初始化成功】 {}", ip);
+        //保存主机信息
+        HostEntity hostEntity = new HostEntity();
+        hostEntity.setHostIp(ip);
+        hostEntity.setHostName(String.format("IP为%s的主机", ip).trim());
+        hostEntity.setHostStatus(RunStatusEnum.RUNNING.getCode());
+        new Thread(()->{
+            try {
+                TimeUnit.SECONDS.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                String jsonString = IOUtils.toString(new URL(String.format("http://%s:8080/api/host/info", ip)), StandardCharsets.UTF_8);
+                JSONObject parseObject = JSONObject.parseObject(jsonString);
+                Integer cpuNumber = Integer.parseInt(parseObject.getJSONObject("data").getJSONObject("cpu_info").getString("physical_cores"));
+                hostEntity.setHostCpuNumber(cpuNumber);
+                hostEntity.setHostOs("Linux");
+                hostEntityRepository.save(hostEntity);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
         return ResultVOUtil.success();
     }
 
     // 主机列表
     @PostMapping("list")
     public ResultVO ListHost(){
-        return ResultVOUtil.success();
+        List<HostEntityVO> hostEntityVOList = hostEntityService.getAllHost();
+        return ResultVOUtil.success(hostEntityVOList);
     }
 
     // 移除主机
     @PostMapping("remove")
     public ResultVO removeHost(String ip){
+        hostEntityRepository.deleteById(ip);
+        return ResultVOUtil.success();
+    }
+
+    //获取主机信息
+    @RequestMapping("push-info")
+    public ResultVO pushHostInfo(@RequestBody JSONObject jsonObject){
+        jsonObject.getString("");
         return ResultVOUtil.success();
     }
 }

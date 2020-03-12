@@ -3,7 +3,7 @@ package xpu.ctrl.docker.enums;
 import lombok.Getter;
 
 @Getter
-public enum  ResultEnum {
+public enum  ResultEnum implements CodeEnum {
     SUCCESS(0, "成功"),
     UPLOAD_ERROR(1, "上传镜像参数错误"),
     NOT_FIND_FILE(2, "未找到镜像文件");
