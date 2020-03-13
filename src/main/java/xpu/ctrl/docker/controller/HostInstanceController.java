@@ -27,9 +27,7 @@ import xpu.ctrl.docker.vo.ResultVO;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -115,7 +113,7 @@ public class HostInstanceController {
                 JSONObject parseObject = JSONObject.parseObject(jsonString);
                 Integer cpuNumber = Integer.parseInt(parseObject.getJSONObject("data").getJSONObject("cpu_info").getString("physical_cores"));
                 hostEntity.setHostCpuNumber(cpuNumber);
-                hostEntity.setHostOs("Linux");
+                hostEntity.setHostOs(parseObject.getJSONObject("data").getJSONObject("host_info").getString("os"));
                 hostEntityRepository.save(hostEntity);
             } catch (IOException e) {
                 e.printStackTrace();
