@@ -2,6 +2,7 @@ package xpu.ctrl.docker.dataobject;
 
 import lombok.Data;
 
+import java.math.BigInteger;
 import java.util.List;
 
 @Data
@@ -15,7 +16,7 @@ public class DksvHostInfo {
      * load_info : {"load":{"load1":0.01,"load5":0.02,"load15":0.05},"misc":{"procsTotal":491,"procsRunning":1,"procsBlocked":0,"ctxt":411083782}}
      * mem_info : {"swap_memory":{"total":8589930496,"used":70492160,"free":8519438336,"usedPercent":0.8206371405778602,"sin":31539200,"sout":249606144,"pgin":92413403136,"pgout":191359270912,"pgfault":2707471446016},"virtual_memory":{"total":8185933824,"available":4416376832,"used":3437543424,"usedPercent":41.993296035714444,"free":1240518656,"active":2049691648,"inactive":1947078656,"wired":0,"laundry":0,"buffers":0,"cached":3507871744,"writeback":0,"dirty":8192,"writebacktmp":0,"shared":18771968,"slab":372494336,"sreclaimable":221261824,"sunreclaim":151232512,"pagetables":31903744,"swapcached":7581696,"commitlimit":12682895360,"committedas":3925381120,"hightotal":0,"highfree":0,"lowtotal":0,"lowfree":0,"swaptotal":8589930496,"swapfree":8519438336,"mapped":112197632,"vmalloctotal":35184372087808,"vmallocused":211181568,"vmallocchunk":35183933779968,"hugepagestotal":0,"hugepagesfree":0,"hugepagesize":2097152}}
      * process : [1,2,3,5,7,8,9,10,11,12,13,15,16,17,18,20,21,22,23,25,27,28,29,30,31,32,33,34,41,42,43,44,52,54,57,59,79,113,298,299,304,307,308,310,311,312,313,316,350,355,393,394,405,406,419,420,421,422,423,424,425,426,427,428,429,501,523,524,525,531,564,605,609,610,611,612,613,614,615,652,653,661,662,663,664,665,666,668,669,721,723,725,749,750,752,753,754,755,756,757,758,760,762,763,768,772,778,785,786,788,799,804,820,848,892,1043,1044,1260,1261,1262,1270,1280,1654,1690,1858,1862,9045,9103,9104,13664,13671,13737,13798,13799,13817,13892,13907,13912,13919,13920,13988,13993,14085,14104,14109,14112,14131,14143,14157,14162,14167,14169,14177,14182,14189,14194,14203,14206,14208,14213,14225,14245,14254,14264,14274,14295,14312,14321,14327,14348,14355,14358,14363,14364,14376,14380,14389,14392,14410,14519,14522,14543,14548,14572,14625,14817,15118,15134,19761,21006,25171,25172,27791,27812,38842,54451,55782,60954,61220,62133,63072,63521,63859,64248,64464,64468,73592,73600,78415,90377,92363,92364,92365,92367,126390,126398,127108,127446,127474,128744,128827,128839,128962,129840]
-     * proto_counters : [{"protocol":"ip","stats":{"DefaultTTL":64,"ForwDatagrams":20428,"Forwarding":1,"FragCreates":0,"FragFails":0,"FragOKs":0,"InAddrErrors":0,"InDelivers":1765958,"InDiscards":0,"InHdrErrors":0,"InReceives":1786647,"InUnknownProtos":0,"OutDiscards":737,"OutNoRoutes":292,"OutRequests":1398555,"ReasmFails":0,"ReasmOKs":0,"ReasmReqds":0,"ReasmTimeout":0}},{"protocol":"icmp","stats":{"InAddrMaskReps":0,"InAddrMasks":0,"InCsumErrors":815,"InDestUnreachs":327,"InEchoReps":1053,"InEchos":3,"InErrors":823,"InMsgs":2198,"InParmProbs":0,"InRedirects":0,"InSrcQuenchs":0,"longimeExcds":0,"longimestampReps":0,"longimestamps":0,"OutAddrMaskReps":0,"OutAddrMasks":0,"OutDestUnreachs":406,"OutEchoReps":3,"OutEchos":1198,"OutErrors":0,"OutMsgs":2542,"OutParmProbs":0,"OutRedirects":935,"OutSrcQuenchs":0,"OutTimeExcds":0,"OutTimestampReps":0,"OutTimestamps":0}},{"protocol":"icmpmsg","stats":{"longype0":1053,"longype3":327,"longype8":3,"OutType0":3,"OutType3":406,"OutType5":935,"OutType8":1198}},{"protocol":"tcp","stats":{"ActiveOpens":1897,"AttemptFails":34,"CurrEstab":3,"EstabResets":135,"InCsumErrors":0,"InErrs":1,"InSegs":1751536,"MaxConn":-1,"OutRsts":1951,"OutSegs":1721569,"PassiveOpens":952,"RetransSegs":2980,"RtoAlgorithm":1,"RtoMax":120000,"RtoMin":200}},{"protocol":"udp","stats":{"InCsumErrors":0,"InDatagrams":9662,"InErrors":0,"NoPorts":81,"OutDatagrams":6545,"RcvbufErrors":0,"SndbufErrors":0}},{"protocol":"udplite","stats":{"InCsumErrors":0,"InDatagrams":0,"InErrors":0,"NoPorts":0,"OutDatagrams":0,"RcvbufErrors":0,"SndbufErrors":0}}]
+     * proto_counters : [{"protocol":"ip","stats":{"DefaultTTL":64,"ForwDatagrams":20428,"Forwarding":1,"FragCreates":0,"FragFails":0,"FragOKs":0,"InAddrErrors":0,"InDelivers":1765958,"InDiscards":0,"InHdrErrors":0,"InReceives":1786647,"InUnknownProtos":0,"OutDiscards":737,"OutNoRoutes":292,"OutRequests":1398555,"ReasmFails":0,"ReasmOKs":0,"ReasmReqds":0,"ReasmTimeout":0}},{"protocol":"icmp","stats":{"InAddrMaskReps":0,"InAddrMasks":0,"InCsumErrors":815,"InDestUnreachs":327,"InEchoReps":1053,"InEchos":3,"InErrors":823,"InMsgs":2198,"InParmProbs":0,"InRedirects":0,"InSrcQuenchs":0,"BigIntegerimeExcds":0,"BigIntegerimestampReps":0,"BigIntegerimestamps":0,"OutAddrMaskReps":0,"OutAddrMasks":0,"OutDestUnreachs":406,"OutEchoReps":3,"OutEchos":1198,"OutErrors":0,"OutMsgs":2542,"OutParmProbs":0,"OutRedirects":935,"OutSrcQuenchs":0,"OutTimeExcds":0,"OutTimestampReps":0,"OutTimestamps":0}},{"protocol":"icmpmsg","stats":{"BigIntegerype0":1053,"BigIntegerype3":327,"BigIntegerype8":3,"OutType0":3,"OutType3":406,"OutType5":935,"OutType8":1198}},{"protocol":"tcp","stats":{"ActiveOpens":1897,"AttemptFails":34,"CurrEstab":3,"EstabResets":135,"InCsumErrors":0,"InErrs":1,"InSegs":1751536,"MaxConn":-1,"OutRsts":1951,"OutSegs":1721569,"PassiveOpens":952,"RetransSegs":2980,"RtoAlgorithm":1,"RtoMax":120000,"RtoMin":200}},{"protocol":"udp","stats":{"InCsumErrors":0,"InDatagrams":9662,"InErrors":0,"NoPorts":81,"OutDatagrams":6545,"RcvbufErrors":0,"SndbufErrors":0}},{"protocol":"udplite","stats":{"InCsumErrors":0,"InDatagrams":0,"InErrors":0,"NoPorts":0,"OutDatagrams":0,"RcvbufErrors":0,"SndbufErrors":0}}]
      * sensors : null
      */
 
@@ -26,7 +27,7 @@ public class DksvHostInfo {
     private MemInfoBean mem_info;
     private Object sensors;
     private List<IoCountersBean> io_counters;
-    private List<Long> process;
+    private List<BigInteger> process;
     private List<ProtoCountersBean> proto_counters;
 
     public CpuInfoBean getCpu_info() {
@@ -85,11 +86,11 @@ public class DksvHostInfo {
         this.io_counters = io_counters;
     }
 
-    public List<Long> getProcess() {
+    public List<BigInteger> getProcess() {
         return process;
     }
 
-    public void setProcess(List<Long> process) {
+    public void setProcess(List<BigInteger> process) {
         this.process = process;
     }
 
@@ -108,23 +109,23 @@ public class DksvHostInfo {
          * percent : [1.0050251255959877]
          */
 
-        private long logical_cores;
-        private long physical_cores;
+        private BigInteger logical_cores;
+        private BigInteger physical_cores;
         private List<Double> percent;
 
-        public long getLogical_cores() {
+        public BigInteger getLogical_cores() {
             return logical_cores;
         }
 
-        public void setLogical_cores(long logical_cores) {
+        public void setLogical_cores(BigInteger logical_cores) {
             this.logical_cores = logical_cores;
         }
 
-        public long getPhysical_cores() {
+        public BigInteger getPhysical_cores() {
             return physical_cores;
         }
 
-        public void setPhysical_cores(long physical_cores) {
+        public void setPhysical_cores(BigInteger physical_cores) {
             this.physical_cores = physical_cores;
         }
 
@@ -153,13 +154,13 @@ public class DksvHostInfo {
 
         private String path;
         private String fstype;
-        private long total;
-        private long free;
-        private long used;
+        private BigInteger total;
+        private BigInteger free;
+        private BigInteger used;
         private double usedPercent;
-        private long inodesTotal;
-        private long inodesUsed;
-        private long inodesFree;
+        private BigInteger inodesTotal;
+        private BigInteger inodesUsed;
+        private BigInteger inodesFree;
         private double inodesUsedPercent;
 
         public String getPath() {
@@ -178,27 +179,27 @@ public class DksvHostInfo {
             this.fstype = fstype;
         }
 
-        public long getTotal() {
+        public BigInteger getTotal() {
             return total;
         }
 
-        public void setTotal(long total) {
+        public void setTotal(BigInteger total) {
             this.total = total;
         }
 
-        public long getFree() {
+        public BigInteger getFree() {
             return free;
         }
 
-        public void setFree(long free) {
+        public void setFree(BigInteger free) {
             this.free = free;
         }
 
-        public long getUsed() {
+        public BigInteger getUsed() {
             return used;
         }
 
-        public void setUsed(long used) {
+        public void setUsed(BigInteger used) {
             this.used = used;
         }
 
@@ -210,27 +211,27 @@ public class DksvHostInfo {
             this.usedPercent = usedPercent;
         }
 
-        public long getInodesTotal() {
+        public BigInteger getInodesTotal() {
             return inodesTotal;
         }
 
-        public void setInodesTotal(long inodesTotal) {
+        public void setInodesTotal(BigInteger inodesTotal) {
             this.inodesTotal = inodesTotal;
         }
 
-        public long getInodesUsed() {
+        public BigInteger getInodesUsed() {
             return inodesUsed;
         }
 
-        public void setInodesUsed(long inodesUsed) {
+        public void setInodesUsed(BigInteger inodesUsed) {
             this.inodesUsed = inodesUsed;
         }
 
-        public long getInodesFree() {
+        public BigInteger getInodesFree() {
             return inodesFree;
         }
 
-        public void setInodesFree(long inodesFree) {
+        public void setInodesFree(BigInteger inodesFree) {
             this.inodesFree = inodesFree;
         }
 
@@ -261,9 +262,9 @@ public class DksvHostInfo {
          */
 
         private String hostname;
-        private long uptime;
-        private long bootTime;
-        private long procs;
+        private BigInteger uptime;
+        private BigInteger bootTime;
+        private BigInteger procs;
         private String os;
         private String platform;
         private String platformFamily;
@@ -282,27 +283,27 @@ public class DksvHostInfo {
             this.hostname = hostname;
         }
 
-        public long getUptime() {
+        public BigInteger getUptime() {
             return uptime;
         }
 
-        public void setUptime(long uptime) {
+        public void setUptime(BigInteger uptime) {
             this.uptime = uptime;
         }
 
-        public long getBootTime() {
+        public BigInteger getBootTime() {
             return bootTime;
         }
 
-        public void setBootTime(long bootTime) {
+        public void setBootTime(BigInteger bootTime) {
             this.bootTime = bootTime;
         }
 
-        public long getProcs() {
+        public BigInteger getProcs() {
             return procs;
         }
 
-        public void setProcs(long procs) {
+        public void setProcs(BigInteger procs) {
             this.procs = procs;
         }
 
@@ -448,40 +449,40 @@ public class DksvHostInfo {
              * ctxt : 411083782
              */
 
-            private long procsTotal;
-            private long procsRunning;
-            private long procsBlocked;
-            private long ctxt;
+            private BigInteger procsTotal;
+            private BigInteger procsRunning;
+            private BigInteger procsBlocked;
+            private BigInteger ctxt;
 
-            public long getProcsTotal() {
+            public BigInteger getProcsTotal() {
                 return procsTotal;
             }
 
-            public void setProcsTotal(long procsTotal) {
+            public void setProcsTotal(BigInteger procsTotal) {
                 this.procsTotal = procsTotal;
             }
 
-            public long getProcsRunning() {
+            public BigInteger getProcsRunning() {
                 return procsRunning;
             }
 
-            public void setProcsRunning(long procsRunning) {
+            public void setProcsRunning(BigInteger procsRunning) {
                 this.procsRunning = procsRunning;
             }
 
-            public long getProcsBlocked() {
+            public BigInteger getProcsBlocked() {
                 return procsBlocked;
             }
 
-            public void setProcsBlocked(long procsBlocked) {
+            public void setProcsBlocked(BigInteger procsBlocked) {
                 this.procsBlocked = procsBlocked;
             }
 
-            public long getCtxt() {
+            public BigInteger getCtxt() {
                 return ctxt;
             }
 
-            public void setCtxt(long ctxt) {
+            public void setCtxt(BigInteger ctxt) {
                 this.ctxt = ctxt;
             }
         }
@@ -525,37 +526,37 @@ public class DksvHostInfo {
              * pgfault : 2707471446016
              */
 
-            private long total;
-            private long used;
-            private long free;
+            private BigInteger total;
+            private BigInteger used;
+            private BigInteger free;
             private double usedPercent;
-            private long sin;
-            private long sout;
-            private long pgin;
-            private long pgout;
-            private long pgfault;
+            private BigInteger sin;
+            private BigInteger sout;
+            private BigInteger pgin;
+            private BigInteger pgout;
+            private BigInteger pgfault;
 
-            public long getTotal() {
+            public BigInteger getTotal() {
                 return total;
             }
 
-            public void setTotal(long total) {
+            public void setTotal(BigInteger total) {
                 this.total = total;
             }
 
-            public long getUsed() {
+            public BigInteger getUsed() {
                 return used;
             }
 
-            public void setUsed(long used) {
+            public void setUsed(BigInteger used) {
                 this.used = used;
             }
 
-            public long getFree() {
+            public BigInteger getFree() {
                 return free;
             }
 
-            public void setFree(long free) {
+            public void setFree(BigInteger free) {
                 this.free = free;
             }
 
@@ -567,43 +568,43 @@ public class DksvHostInfo {
                 this.usedPercent = usedPercent;
             }
 
-            public long getSin() {
+            public BigInteger getSin() {
                 return sin;
             }
 
-            public void setSin(long sin) {
+            public void setSin(BigInteger sin) {
                 this.sin = sin;
             }
 
-            public long getSout() {
+            public BigInteger getSout() {
                 return sout;
             }
 
-            public void setSout(long sout) {
+            public void setSout(BigInteger sout) {
                 this.sout = sout;
             }
 
-            public long getPgin() {
+            public BigInteger getPgin() {
                 return pgin;
             }
 
-            public void setPgin(long pgin) {
+            public void setPgin(BigInteger pgin) {
                 this.pgin = pgin;
             }
 
-            public long getPgout() {
+            public BigInteger getPgout() {
                 return pgout;
             }
 
-            public void setPgout(long pgout) {
+            public void setPgout(BigInteger pgout) {
                 this.pgout = pgout;
             }
 
-            public long getPgfault() {
+            public BigInteger getPgfault() {
                 return pgfault;
             }
 
-            public void setPgfault(long pgfault) {
+            public void setPgfault(BigInteger pgfault) {
                 this.pgfault = pgfault;
             }
         }
@@ -647,63 +648,63 @@ public class DksvHostInfo {
              * hugepagesize : 2097152
              */
 
-            private long total;
-            private long available;
-            private long used;
+            private BigInteger total;
+            private BigInteger available;
+            private BigInteger used;
             private double usedPercent;
-            private long free;
-            private long active;
-            private long inactive;
-            private long wired;
-            private long laundry;
-            private long buffers;
-            private long cached;
-            private long writeback;
-            private long dirty;
-            private long writebacktmp;
-            private long shared;
-            private long slab;
-            private long sreclaimable;
-            private long sunreclaim;
-            private long pagetables;
-            private long swapcached;
-            private long commitlimit;
-            private long committedas;
-            private long hightotal;
-            private long highfree;
-            private long lowtotal;
-            private long lowfree;
-            private long swaptotal;
-            private long swapfree;
-            private long mapped;
-            private long vmalloctotal;
-            private long vmallocused;
-            private long vmallocchunk;
-            private long hugepagestotal;
-            private long hugepagesfree;
-            private long hugepagesize;
+            private BigInteger free;
+            private BigInteger active;
+            private BigInteger inactive;
+            private BigInteger wired;
+            private BigInteger laundry;
+            private BigInteger buffers;
+            private BigInteger cached;
+            private BigInteger writeback;
+            private BigInteger dirty;
+            private BigInteger writebacktmp;
+            private BigInteger shared;
+            private BigInteger slab;
+            private BigInteger sreclaimable;
+            private BigInteger sunreclaim;
+            private BigInteger pagetables;
+            private BigInteger swapcached;
+            private BigInteger commitlimit;
+            private BigInteger committedas;
+            private BigInteger hightotal;
+            private BigInteger highfree;
+            private BigInteger lowtotal;
+            private BigInteger lowfree;
+            private BigInteger swaptotal;
+            private BigInteger swapfree;
+            private BigInteger mapped;
+            private BigInteger vmalloctotal;
+            private BigInteger vmallocused;
+            private BigInteger vmallocchunk;
+            private BigInteger hugepagestotal;
+            private BigInteger hugepagesfree;
+            private BigInteger hugepagesize;
 
-            public long getTotal() {
+            public BigInteger getTotal() {
                 return total;
             }
 
-            public void setTotal(long total) {
+            public void setTotal(BigInteger total) {
                 this.total = total;
             }
 
-            public long getAvailable() {
+            public BigInteger getAvailable() {
                 return available;
             }
 
-            public void setAvailable(long available) {
+            public void setAvailable(BigInteger available) {
                 this.available = available;
             }
 
-            public long getUsed() {
+            public BigInteger getUsed() {
                 return used;
             }
 
-            public void setUsed(long used) {
+            public void setUsed(BigInteger used) {
                 this.used = used;
             }
 
@@ -715,251 +716,251 @@ public class DksvHostInfo {
                 this.usedPercent = usedPercent;
             }
 
-            public long getFree() {
+            public BigInteger getFree() {
                 return free;
             }
 
-            public void setFree(long free) {
+            public void setFree(BigInteger free) {
                 this.free = free;
             }
 
-            public long getActive() {
+            public BigInteger getActive() {
                 return active;
             }
 
-            public void setActive(long active) {
+            public void setActive(BigInteger active) {
                 this.active = active;
             }
 
-            public long getInactive() {
+            public BigInteger getInactive() {
                 return inactive;
             }
 
-            public void setInactive(long inactive) {
+            public void setInactive(BigInteger inactive) {
                 this.inactive = inactive;
             }
 
-            public long getWired() {
+            public BigInteger getWired() {
                 return wired;
             }
 
-            public void setWired(long wired) {
+            public void setWired(BigInteger wired) {
                 this.wired = wired;
             }
 
-            public long getLaundry() {
+            public BigInteger getLaundry() {
                 return laundry;
             }
 
-            public void setLaundry(long laundry) {
+            public void setLaundry(BigInteger laundry) {
                 this.laundry = laundry;
             }
 
-            public long getBuffers() {
+            public BigInteger getBuffers() {
                 return buffers;
             }
 
-            public void setBuffers(long buffers) {
+            public void setBuffers(BigInteger buffers) {
                 this.buffers = buffers;
             }
 
-            public long getCached() {
+            public BigInteger getCached() {
                 return cached;
             }
 
-            public void setCached(long cached) {
+            public void setCached(BigInteger cached) {
                 this.cached = cached;
             }
 
-            public long getWriteback() {
+            public BigInteger getWriteback() {
                 return writeback;
             }
 
-            public void setWriteback(long writeback) {
+            public void setWriteback(BigInteger writeback) {
                 this.writeback = writeback;
             }
 
-            public long getDirty() {
+            public BigInteger getDirty() {
                 return dirty;
             }
 
-            public void setDirty(long dirty) {
+            public void setDirty(BigInteger dirty) {
                 this.dirty = dirty;
             }
 
-            public long getWritebacktmp() {
+            public BigInteger getWritebacktmp() {
                 return writebacktmp;
             }
 
-            public void setWritebacktmp(long writebacktmp) {
+            public void setWritebacktmp(BigInteger writebacktmp) {
                 this.writebacktmp = writebacktmp;
             }
 
-            public long getShared() {
+            public BigInteger getShared() {
                 return shared;
             }
 
-            public void setShared(long shared) {
+            public void setShared(BigInteger shared) {
                 this.shared = shared;
             }
 
-            public long getSlab() {
+            public BigInteger getSlab() {
                 return slab;
             }
 
-            public void setSlab(long slab) {
+            public void setSlab(BigInteger slab) {
                 this.slab = slab;
             }
 
-            public long getSreclaimable() {
+            public BigInteger getSreclaimable() {
                 return sreclaimable;
             }
 
-            public void setSreclaimable(long sreclaimable) {
+            public void setSreclaimable(BigInteger sreclaimable) {
                 this.sreclaimable = sreclaimable;
             }
 
-            public long getSunreclaim() {
+            public BigInteger getSunreclaim() {
                 return sunreclaim;
             }
 
-            public void setSunreclaim(long sunreclaim) {
+            public void setSunreclaim(BigInteger sunreclaim) {
                 this.sunreclaim = sunreclaim;
             }
 
-            public long getPagetables() {
+            public BigInteger getPagetables() {
                 return pagetables;
             }
 
-            public void setPagetables(long pagetables) {
+            public void setPagetables(BigInteger pagetables) {
                 this.pagetables = pagetables;
             }
 
-            public long getSwapcached() {
+            public BigInteger getSwapcached() {
                 return swapcached;
             }
 
-            public void setSwapcached(long swapcached) {
+            public void setSwapcached(BigInteger swapcached) {
                 this.swapcached = swapcached;
             }
 
-            public long getCommitlimit() {
+            public BigInteger getCommitlimit() {
                 return commitlimit;
             }
 
-            public void setCommitlimit(long commitlimit) {
+            public void setCommitlimit(BigInteger commitlimit) {
                 this.commitlimit = commitlimit;
             }
 
-            public long getCommittedas() {
+            public BigInteger getCommittedas() {
                 return committedas;
             }
 
-            public void setCommittedas(long committedas) {
+            public void setCommittedas(BigInteger committedas) {
                 this.committedas = committedas;
             }
 
-            public long getHightotal() {
+            public BigInteger getHightotal() {
                 return hightotal;
             }
 
-            public void setHightotal(long hightotal) {
+            public void setHightotal(BigInteger hightotal) {
                 this.hightotal = hightotal;
             }
 
-            public long getHighfree() {
+            public BigInteger getHighfree() {
                 return highfree;
             }
 
-            public void setHighfree(long highfree) {
+            public void setHighfree(BigInteger highfree) {
                 this.highfree = highfree;
             }
 
-            public long getLowtotal() {
+            public BigInteger getLowtotal() {
                 return lowtotal;
             }
 
-            public void setLowtotal(long lowtotal) {
+            public void setLowtotal(BigInteger lowtotal) {
                 this.lowtotal = lowtotal;
             }
 
-            public long getLowfree() {
+            public BigInteger getLowfree() {
                 return lowfree;
             }
 
-            public void setLowfree(long lowfree) {
+            public void setLowfree(BigInteger lowfree) {
                 this.lowfree = lowfree;
             }
 
-            public long getSwaptotal() {
+            public BigInteger getSwaptotal() {
                 return swaptotal;
             }
 
-            public void setSwaptotal(long swaptotal) {
+            public void setSwaptotal(BigInteger swaptotal) {
                 this.swaptotal = swaptotal;
             }
 
-            public long getSwapfree() {
+            public BigInteger getSwapfree() {
                 return swapfree;
             }
 
-            public void setSwapfree(long swapfree) {
+            public void setSwapfree(BigInteger swapfree) {
                 this.swapfree = swapfree;
             }
 
-            public long getMapped() {
+            public BigInteger getMapped() {
                 return mapped;
             }
 
-            public void setMapped(long mapped) {
+            public void setMapped(BigInteger mapped) {
                 this.mapped = mapped;
             }
 
-            public long getVmalloctotal() {
+            public BigInteger getVmalloctotal() {
                 return vmalloctotal;
             }
 
-            public void setVmalloctotal(long vmalloctotal) {
+            public void setVmalloctotal(BigInteger vmalloctotal) {
                 this.vmalloctotal = vmalloctotal;
             }
 
-            public long getVmallocused() {
+            public BigInteger getVmallocused() {
                 return vmallocused;
             }
 
-            public void setVmallocused(long vmallocused) {
+            public void setVmallocused(BigInteger vmallocused) {
                 this.vmallocused = vmallocused;
             }
 
-            public long getVmallocchunk() {
+            public BigInteger getVmallocchunk() {
                 return vmallocchunk;
             }
 
-            public void setVmallocchunk(long vmallocchunk) {
+            public void setVmallocchunk(BigInteger vmallocchunk) {
                 this.vmallocchunk = vmallocchunk;
             }
 
-            public long getHugepagestotal() {
+            public BigInteger getHugepagestotal() {
                 return hugepagestotal;
             }
 
-            public void setHugepagestotal(long hugepagestotal) {
+            public void setHugepagestotal(BigInteger hugepagestotal) {
                 this.hugepagestotal = hugepagestotal;
             }
 
-            public long getHugepagesfree() {
+            public BigInteger getHugepagesfree() {
                 return hugepagesfree;
             }
 
-            public void setHugepagesfree(long hugepagesfree) {
+            public void setHugepagesfree(BigInteger hugepagesfree) {
                 this.hugepagesfree = hugepagesfree;
             }
 
-            public long getHugepagesize() {
+            public BigInteger getHugepagesize() {
                 return hugepagesize;
             }
 
-            public void setHugepagesize(long hugepagesize) {
+            public void setHugepagesize(BigInteger hugepagesize) {
                 this.hugepagesize = hugepagesize;
             }
         }
@@ -981,16 +982,16 @@ public class DksvHostInfo {
          */
 
         private String name;
-        private long bytesSent;
-        private long bytesRecv;
-        private long packetsSent;
-        private long packetsRecv;
-        private long errin;
-        private long errout;
-        private long dropin;
-        private long dropout;
-        private long fifoin;
-        private long fifoout;
+        private BigInteger bytesSent;
+        private BigInteger bytesRecv;
+        private BigInteger packetsSent;
+        private BigInteger packetsRecv;
+        private BigInteger errin;
+        private BigInteger errout;
+        private BigInteger dropin;
+        private BigInteger dropout;
+        private BigInteger fifoin;
+        private BigInteger fifoout;
 
         public String getName() {
             return name;
@@ -1000,83 +1001,83 @@ public class DksvHostInfo {
             this.name = name;
         }
 
-        public long getBytesSent() {
+        public BigInteger getBytesSent() {
             return bytesSent;
         }
 
-        public void setBytesSent(long bytesSent) {
+        public void setBytesSent(BigInteger bytesSent) {
             this.bytesSent = bytesSent;
         }
 
-        public long getBytesRecv() {
+        public BigInteger getBytesRecv() {
             return bytesRecv;
         }
 
-        public void setBytesRecv(long bytesRecv) {
+        public void setBytesRecv(BigInteger bytesRecv) {
             this.bytesRecv = bytesRecv;
         }
 
-        public long getPacketsSent() {
+        public BigInteger getPacketsSent() {
             return packetsSent;
         }
 
-        public void setPacketsSent(long packetsSent) {
+        public void setPacketsSent(BigInteger packetsSent) {
             this.packetsSent = packetsSent;
         }
 
-        public long getPacketsRecv() {
+        public BigInteger getPacketsRecv() {
             return packetsRecv;
         }
 
-        public void setPacketsRecv(long packetsRecv) {
+        public void setPacketsRecv(BigInteger packetsRecv) {
             this.packetsRecv = packetsRecv;
         }
 
-        public long getErrin() {
+        public BigInteger getErrin() {
             return errin;
         }
 
-        public void setErrin(long errin) {
+        public void setErrin(BigInteger errin) {
             this.errin = errin;
         }
 
-        public long getErrout() {
+        public BigInteger getErrout() {
             return errout;
         }
 
-        public void setErrout(long errout) {
+        public void setErrout(BigInteger errout) {
             this.errout = errout;
         }
 
-        public long getDropin() {
+        public BigInteger getDropin() {
             return dropin;
         }
 
-        public void setDropin(long dropin) {
+        public void setDropin(BigInteger dropin) {
             this.dropin = dropin;
         }
 
-        public long getDropout() {
+        public BigInteger getDropout() {
             return dropout;
         }
 
-        public void setDropout(long dropout) {
+        public void setDropout(BigInteger dropout) {
             this.dropout = dropout;
         }
 
-        public long getFifoin() {
+        public BigInteger getFifoin() {
             return fifoin;
         }
 
-        public void setFifoin(long fifoin) {
+        public void setFifoin(BigInteger fifoin) {
             this.fifoin = fifoin;
         }
 
-        public long getFifoout() {
+        public BigInteger getFifoout() {
             return fifoout;
         }
 
-        public void setFifoout(long fifoout) {
+        public void setFifoout(BigInteger fifoout) {
             this.fifoout = fifoout;
         }
     }
@@ -1129,175 +1130,175 @@ public class DksvHostInfo {
              * ReasmTimeout : 0
              */
 
-            private long DefaultTTL;
-            private long ForwDatagrams;
-            private long Forwarding;
-            private long FragCreates;
-            private long FragFails;
-            private long FragOKs;
-            private long InAddrErrors;
-            private long InDelivers;
-            private long InDiscards;
-            private long InHdrErrors;
-            private long InReceives;
-            private long InUnknownProtos;
-            private long OutDiscards;
-            private long OutNoRoutes;
-            private long OutRequests;
-            private long ReasmFails;
-            private long ReasmOKs;
-            private long ReasmReqds;
-            private long ReasmTimeout;
+            private BigInteger DefaultTTL;
+            private BigInteger ForwDatagrams;
+            private BigInteger Forwarding;
+            private BigInteger FragCreates;
+            private BigInteger FragFails;
+            private BigInteger FragOKs;
+            private BigInteger InAddrErrors;
+            private BigInteger InDelivers;
+            private BigInteger InDiscards;
+            private BigInteger InHdrErrors;
+            private BigInteger InReceives;
+            private BigInteger InUnknownProtos;
+            private BigInteger OutDiscards;
+            private BigInteger OutNoRoutes;
+            private BigInteger OutRequests;
+            private BigInteger ReasmFails;
+            private BigInteger ReasmOKs;
+            private BigInteger ReasmReqds;
+            private BigInteger ReasmTimeout;
 
-            public long getDefaultTTL() {
+            public BigInteger getDefaultTTL() {
                 return DefaultTTL;
             }
 
-            public void setDefaultTTL(long DefaultTTL) {
+            public void setDefaultTTL(BigInteger DefaultTTL) {
                 this.DefaultTTL = DefaultTTL;
             }
 
-            public long getForwDatagrams() {
+            public BigInteger getForwDatagrams() {
                 return ForwDatagrams;
             }
 
-            public void setForwDatagrams(long ForwDatagrams) {
+            public void setForwDatagrams(BigInteger ForwDatagrams) {
                 this.ForwDatagrams = ForwDatagrams;
             }
 
-            public long getForwarding() {
+            public BigInteger getForwarding() {
                 return Forwarding;
             }
 
-            public void setForwarding(long Forwarding) {
+            public void setForwarding(BigInteger Forwarding) {
                 this.Forwarding = Forwarding;
             }
 
-            public long getFragCreates() {
+            public BigInteger getFragCreates() {
                 return FragCreates;
             }
 
-            public void setFragCreates(long FragCreates) {
+            public void setFragCreates(BigInteger FragCreates) {
                 this.FragCreates = FragCreates;
             }
 
-            public long getFragFails() {
+            public BigInteger getFragFails() {
                 return FragFails;
             }
 
-            public void setFragFails(long FragFails) {
+            public void setFragFails(BigInteger FragFails) {
                 this.FragFails = FragFails;
             }
 
-            public long getFragOKs() {
+            public BigInteger getFragOKs() {
                 return FragOKs;
             }
 
-            public void setFragOKs(long FragOKs) {
+            public void setFragOKs(BigInteger FragOKs) {
                 this.FragOKs = FragOKs;
             }
 
-            public long getInAddrErrors() {
+            public BigInteger getInAddrErrors() {
                 return InAddrErrors;
             }
 
-            public void setInAddrErrors(long InAddrErrors) {
+            public void setInAddrErrors(BigInteger InAddrErrors) {
                 this.InAddrErrors = InAddrErrors;
             }
 
-            public long getInDelivers() {
+            public BigInteger getInDelivers() {
                 return InDelivers;
             }
 
-            public void setInDelivers(long InDelivers) {
+            public void setInDelivers(BigInteger InDelivers) {
                 this.InDelivers = InDelivers;
             }
 
-            public long getInDiscards() {
+            public BigInteger getInDiscards() {
                 return InDiscards;
             }
 
-            public void setInDiscards(long InDiscards) {
+            public void setInDiscards(BigInteger InDiscards) {
                 this.InDiscards = InDiscards;
             }
 
-            public long getInHdrErrors() {
+            public BigInteger getInHdrErrors() {
                 return InHdrErrors;
             }
 
-            public void setInHdrErrors(long InHdrErrors) {
+            public void setInHdrErrors(BigInteger InHdrErrors) {
                 this.InHdrErrors = InHdrErrors;
             }
 
-            public long getInReceives() {
+            public BigInteger getInReceives() {
                 return InReceives;
             }
 
-            public void setInReceives(long InReceives) {
+            public void setInReceives(BigInteger InReceives) {
                 this.InReceives = InReceives;
             }
 
-            public long getInUnknownProtos() {
+            public BigInteger getInUnknownProtos() {
                 return InUnknownProtos;
             }
 
-            public void setInUnknownProtos(long InUnknownProtos) {
+            public void setInUnknownProtos(BigInteger InUnknownProtos) {
                 this.InUnknownProtos = InUnknownProtos;
             }
 
-            public long getOutDiscards() {
+            public BigInteger getOutDiscards() {
                 return OutDiscards;
             }
 
-            public void setOutDiscards(long OutDiscards) {
+            public void setOutDiscards(BigInteger OutDiscards) {
                 this.OutDiscards = OutDiscards;
             }
 
-            public long getOutNoRoutes() {
+            public BigInteger getOutNoRoutes() {
                 return OutNoRoutes;
             }
 
-            public void setOutNoRoutes(long OutNoRoutes) {
+            public void setOutNoRoutes(BigInteger OutNoRoutes) {
                 this.OutNoRoutes = OutNoRoutes;
             }
 
-            public long getOutRequests() {
+            public BigInteger getOutRequests() {
                 return OutRequests;
             }
 
-            public void setOutRequests(long OutRequests) {
+            public void setOutRequests(BigInteger OutRequests) {
                 this.OutRequests = OutRequests;
             }
 
-            public long getReasmFails() {
+            public BigInteger getReasmFails() {
                 return ReasmFails;
             }
 
-            public void setReasmFails(long ReasmFails) {
+            public void setReasmFails(BigInteger ReasmFails) {
                 this.ReasmFails = ReasmFails;
             }
 
-            public long getReasmOKs() {
+            public BigInteger getReasmOKs() {
                 return ReasmOKs;
             }
 
-            public void setReasmOKs(long ReasmOKs) {
+            public void setReasmOKs(BigInteger ReasmOKs) {
                 this.ReasmOKs = ReasmOKs;
             }
 
-            public long getReasmReqds() {
+            public BigInteger getReasmReqds() {
                 return ReasmReqds;
             }
 
-            public void setReasmReqds(long ReasmReqds) {
+            public void setReasmReqds(BigInteger ReasmReqds) {
                 this.ReasmReqds = ReasmReqds;
             }
 
-            public long getReasmTimeout() {
+            public BigInteger getReasmTimeout() {
                 return ReasmTimeout;
             }
 
-            public void setReasmTimeout(long ReasmTimeout) {
+            public void setReasmTimeout(BigInteger ReasmTimeout) {
                 this.ReasmTimeout = ReasmTimeout;
             }
         }

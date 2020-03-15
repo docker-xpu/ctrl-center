@@ -4,9 +4,6 @@ import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import com.alibaba.fastjson.JSONObject;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,8 +121,9 @@ public class HostInstanceController {
     // 移除主机
     @PostMapping("remove")
     public ResultVO removeHost(String ip){
+        //DestHost destHost = new DestHost(ip, "root", hostLicense.getLicensePasswd());
         hostEntityRepository.deleteById(ip);
-        //TODO clean.sh
+        //SSHUtils.execCommandByShellDeleteHost()
         return ResultVOUtil.success();
     }
 

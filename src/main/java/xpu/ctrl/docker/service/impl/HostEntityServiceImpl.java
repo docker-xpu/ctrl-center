@@ -18,6 +18,7 @@ import xpu.ctrl.docker.vo.HostRunningVO;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -59,8 +60,9 @@ public class HostEntityServiceImpl implements HostEntityService {
 
                 HostRunningVO.Io io = new HostRunningVO.Io();
                 DksvHostInfo.IoCountersBean ioCountersBean = dksvHostInfo.getIo_counters().get(0);
-                io.setPackage_sent(ioCountersBean.getPacketsSent());
-                io.setPackage_recv(ioCountersBean.getPacketsRecv());
+                BigInteger packetsSent = ioCountersBean.getPacketsSent();
+                io.setPackage_sent(packetsSent.longValue());
+                io.setPackage_recv(ioCountersBean.getPacketsRecv().longValue());
                 hostRunningVO.setIo(io);
 
                 hostRunningVO.setTimestamp(simpleDateFormat.format(new Date(System.currentTimeMillis())));
