@@ -49,3 +49,16 @@ ln -s /usr/local/mongodb/bin/mongod /usr/bin/mongod
 ```bash
 mongod -f /usr/local/mongodb/mongodb.conf 
 ```
+
+# 项目启动流程
+1、开启内网穿透
+
+2、开启MongoDB
+
+3、开启Redis
+
+4、开启MySQL
+
+5、开启MyDocker，注意配置6060端口
+
+6、启动SpringBoot

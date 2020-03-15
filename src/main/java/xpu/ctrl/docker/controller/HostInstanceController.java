@@ -1,18 +1,18 @@
 package xpu.ctrl.docker.controller;
 
 import ch.ethz.ssh2.Connection;
-import ch.ethz.ssh2.SCPClient;
 import ch.ethz.ssh2.Session;
 import ch.ethz.ssh2.StreamGobbler;
 import com.alibaba.fastjson.JSONObject;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import xpu.ctrl.docker.core.ssh.DestHost;
+import xpu.ctrl.docker.core.ssh.SSHUtils;
 import xpu.ctrl.docker.core.ssh.SshConnectionPool;
 import xpu.ctrl.docker.dao.HostLicenseDao;
 import xpu.ctrl.docker.entity.HostEntity;
@@ -25,6 +25,7 @@ import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -70,25 +71,16 @@ public class HostInstanceController {
 
     // 初始化主机
     @PostMapping("init")
-    public ResultVO initHost(String ip, Integer licenseId){
+    public ResultVO initHost(String ip, Integer licenseId, String version){
         HostLicense hostLicense = hostLicenseDao.queryById(licenseId);
         if(hostLicense == null) return ResultVOUtil.error(1, "凭据选择错误");
-        Connection root = instance.getConnectionByIP(ip, "root", hostLicense.getLicensePasswd());
-        Session session;
-        if(root != null){
-            try {
-                session = root.openSession();
-                SCPClient scpClient = new SCPClient(root);
-                ClassPathResource classPathResource = new ClassPathResource("deploy.sh");
-                InputStream inputStream =classPathResource.getInputStream();
-                scpClient.put(IOUtils.toByteArray(inputStream), "deploy.sh", "/root");
-                session.close();
-                session = root.openSession();
-                //session.execCommand("sh deploy.sh " + ip);
-                session.execCommand(String.format("sh deploy.sh %s v1.38 6060", ip));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        DestHost destHost = new DestHost(ip, "root", hostLicense.getLicensePasswd());
+        try {
+            SSHUtils.execCommandByShellDeploy(SSHUtils.getJSchSession(destHost));
+            TimeUnit.SECONDS.sleep(5);
+            SSHUtils.execCommandByShell(SSHUtils.getJSchSession(destHost), ip, version);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return ResultVOUtil.success();
     }
@@ -123,7 +115,7 @@ public class HostInstanceController {
     }
 
     // 主机列表
-    @PostMapping("list")
+    @GetMapping("list")
     public ResultVO ListHost(){
         List<HostEntityVO> hostEntityVOList = hostEntityService.getAllHost();
         return ResultVOUtil.success(hostEntityVOList);
@@ -133,6 +125,7 @@ public class HostInstanceController {
     @PostMapping("remove")
     public ResultVO removeHost(String ip){
         hostEntityRepository.deleteById(ip);
+        //TODO clean.sh
         return ResultVOUtil.success();
     }
 

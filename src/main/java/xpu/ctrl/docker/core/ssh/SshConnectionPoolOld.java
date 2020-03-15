@@ -4,24 +4,21 @@ package xpu.ctrl.docker.core.ssh;
 import ch.ethz.ssh2.Connection;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.channel.ChannelExec;
-import org.apache.sshd.client.session.ClientSession;
 import xpu.ctrl.docker.entity.HostLicense;
 
 import java.io.IOException;
 import java.util.Map;
 
 @Slf4j
-public class SshConnectionPool {
+public class SshConnectionPoolOld {
 
     private static final Map<String, Connection> pool = Maps.newHashMap();
-    private static SshConnectionPool connectionPool = new SshConnectionPool();
+    private static SshConnectionPoolOld connectionPool = new SshConnectionPoolOld();
 
-    private SshConnectionPool() {
+    private SshConnectionPoolOld() {
     }
 
-    public static SshConnectionPool getSSHConnectionPoolInstance(){
+    public static SshConnectionPoolOld getSSHConnectionPoolInstance(){
         return connectionPool;
     }
 
@@ -65,18 +62,5 @@ public class SshConnectionPool {
         if (!isAuthenticated) throw new IOException("Authentication failed.");
         log.info("【成功获取SSH连接】{}", host);
         return conn;
-    }
-
-    public void clentTest() throws IOException {
-        String cmd="ifconfig";
-        SshClient client= SshClient.setUpDefaultClient();
-        client.start();
-        ClientSession session = client.connect("bellring", "10.2.48.179", 22).getSession();
-        session.addPasswordIdentity("123456");
-        if(!session.auth().isSuccess())
-            System.out.println("auth failed");
-        ChannelExec channelExec = session.createExecChannel(cmd);
-
-        client.stop();
     }
 }

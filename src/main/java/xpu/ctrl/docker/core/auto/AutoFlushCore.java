@@ -1,5 +1,6 @@
 package xpu.ctrl.docker.core.auto;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -8,9 +9,13 @@ import org.springframework.stereotype.Component;
 import xpu.ctrl.docker.core.flush.FlushHostInfoService;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.repository.HostEntityRepository;
+import xpu.ctrl.docker.service.GetHostInfoWebSocket;
+import xpu.ctrl.docker.service.HostEntityService;
+import xpu.ctrl.docker.vo.HostRunningVO;
 
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -22,16 +27,19 @@ public class AutoFlushCore implements ApplicationRunner {
     @Autowired
     private HostEntityRepository hostEntityRepository;
 
+    @Autowired
+    private HostEntityService hostEntityService;
+
+    @Autowired
+    private GetHostInfoWebSocket getHostInfoWebSocket;
+
     @Override
     public void run(ApplicationArguments args) {
-
-        List<HostEntity> entityList = hostEntityRepository.findAll();
-
 
         new Thread(()->{
             while (true) {
                 try {
-                    TimeUnit.SECONDS.sleep(30);
+                    TimeUnit.SECONDS.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -41,15 +49,32 @@ public class AutoFlushCore implements ApplicationRunner {
 
         new Thread(()->{
             while (true) {
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                List<HostEntity> entityList = hostEntityRepository.findAll();
                 //获取已连接主机
                 for(HostEntity hostEntity: entityList){
                     //flushHostInfoService.flushHostInfoToCatch("192.168.0.102");
                     flushHostInfoService.flushHostInfoToCatch(hostEntity.getHostIp());
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(()->{
+            while (true){
+                List<HostRunningVO> runningHost = hostEntityService.getRunningHost();
+                CopyOnWriteArrayList<GetHostInfoWebSocket> webSocketSet = GetHostInfoWebSocket.webSocketSet;
+                for(GetHostInfoWebSocket getHostInfoWebSocket: webSocketSet){
+                    getHostInfoWebSocket.sendMessage(JSONObject.toJSONString(runningHost));
+                }
+
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         }).start();

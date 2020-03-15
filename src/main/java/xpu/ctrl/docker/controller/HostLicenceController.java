@@ -1,7 +1,7 @@
 package xpu.ctrl.docker.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 import xpu.ctrl.docker.dao.HostLicenseDao;
 import xpu.ctrl.docker.entity.HostLicense;
 import xpu.ctrl.docker.util.ResultVOUtil;
@@ -18,8 +18,10 @@ public class HostLicenceController {
     private HostLicenseDao hostLicenseDao;
 
     // 添加一个凭证
-    @RequestMapping("new")
+    @PostMapping("new")
     public ResultVO newHostLicense(String licenseName, String password){
+        if(StringUtils.isEmpty(licenseName) || StringUtils.isEmpty(password))
+            return ResultVOUtil.error(1, "请检查参数完整性");
         HostLicense hostLicense = new HostLicense();
         hostLicense.setLicenseName(licenseName);
         hostLicense.setLicensePasswd(password);
@@ -32,8 +34,11 @@ public class HostLicenceController {
     }
 
     // 删除凭证
-    @RequestMapping("delete")
-    public ResultVO deleteHostLicense(Integer licenseId){
+    @PostMapping("delete")
+    public ResultVO deleteHostLicense(@RequestParam("licenseId") Integer licenseId){
+        if(licenseId == null){
+            return ResultVOUtil.error(1, "凭证删除失败");
+        }
         int deleteById = hostLicenseDao.deleteById(licenseId);
         if(deleteById > 0){
             return ResultVOUtil.success();
@@ -43,7 +48,7 @@ public class HostLicenceController {
     }
 
     // 获取所有凭证
-    @RequestMapping("all")
+    @GetMapping("all")
     public ResultVO getAllHostLicense(){
         List<HostLicense> hostLicenses = hostLicenseDao.queryAll(new HostLicense());
         return ResultVOUtil.success(hostLicenses);

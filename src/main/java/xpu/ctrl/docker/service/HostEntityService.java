@@ -2,6 +2,7 @@ package xpu.ctrl.docker.service;
 
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.vo.HostEntityVO;
+import xpu.ctrl.docker.vo.HostRunningVO;
 
 import java.util.List;
 
@@ -55,4 +56,6 @@ public interface HostEntityService {
     boolean deleteById(String hostIp);
 
     List<HostEntityVO> getAllHost();
+
+    List<HostRunningVO> getRunningHost();
 }

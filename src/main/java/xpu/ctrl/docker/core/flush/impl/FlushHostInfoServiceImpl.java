@@ -39,7 +39,6 @@ public class FlushHostInfoServiceImpl implements FlushHostInfoService {
             JSONObject jsonObject = JSONObject.parseObject(jsonString).getJSONObject("data");
             HostEntityHardWare hardWare = HostInfoToObjectUtil.jsonToHostEntityHardWare(jsonObject);
             hardWare.setIp(ip);
-            System.out.println(hardWare);
             redisTemplate.opsForValue().set(String.format("hardWare%s", hardWare.getUpdateTime()), hardWare);
         } catch (IOException e) {
             Optional<HostEntity> entity = hostEntityRepository.findById(ip);
@@ -48,7 +47,6 @@ public class FlushHostInfoServiceImpl implements FlushHostInfoService {
                 hostEntity.setHostStatus(RunStatusEnum.STOP.getCode());
                 hostEntityRepository.save(hostEntity);
             }
-            e.printStackTrace();
         }
     }
 
