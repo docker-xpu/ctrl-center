@@ -2,9 +2,11 @@ package xpu.ctrl.docker.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import xpu.ctrl.docker.dataobject.DksvHostInfo;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.dao.HostEntityDao;
@@ -15,16 +17,19 @@ import org.springframework.stereotype.Service;
 import xpu.ctrl.docker.util.EnumUtil;
 import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.HostRunningVO;
+import xpu.ctrl.docker.vo.HostRunningVOArray;
 
 import javax.annotation.Resource;
+import javax.management.Query;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * (HostEntity)表服务实现类
@@ -34,7 +39,7 @@ import java.util.Optional;
  */
 @Service
 public class HostEntityServiceImpl implements HostEntityService {
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     @Resource
     private HostEntityDao hostEntityDao;
@@ -42,41 +47,54 @@ public class HostEntityServiceImpl implements HostEntityService {
     @Autowired
     private HostEntityRepository hostEntityRepository;
 
+    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
     @Override
     public List<HostRunningVO> getRunningHost() {
         List<HostEntity> hostStatus = hostEntityRepository.findAllByHostStatus(RunStatusEnum.RUNNING.getCode());
         List<HostRunningVO> hostRunningVOList = Lists.newArrayListWithCapacity(hostStatus.size());
-        HostRunningVO hostRunningVO;
+        final CountDownLatch countDownLatch = new CountDownLatch(hostStatus.size());
         for (HostEntity hostEntity: hostStatus){
-            hostRunningVO = new HostRunningVO();
-            String hostIp = hostEntity.getHostIp();
-            URL url;
-            try {
-                url = new URL(String.format("http://%s:8080/api/host/info", hostIp));
-                String data = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getString("data");
-                DksvHostInfo dksvHostInfo = JSONObject.parseObject(data, DksvHostInfo.class);
-                hostRunningVO.setCpu(dksvHostInfo.getCpu_info().getPercent().get(0)/100.0);
-                hostRunningVO.setDisk(dksvHostInfo.getDisk_info().getUsedPercent()/100.0);
+            cachedThreadPool.execute(()->{
+                HostRunningVO hostRunningVO = new HostRunningVO();
+                String hostIp = hostEntity.getHostIp();
+                URL url;
+                try {
+                    url = new URL(String.format("http://%s:8080/api/host/info", hostIp));
+                    String data = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getString("data");
+                    DksvHostInfo dksvHostInfo = JSONObject.parseObject(data, DksvHostInfo.class);
+                    hostRunningVO.setCpu(dksvHostInfo.getCpu_info().getPercent().get(0)/100.0);
+                    hostRunningVO.setDisk(dksvHostInfo.getDisk_info().getUsedPercent()/100.0);
 
-                HostRunningVO.Io io = new HostRunningVO.Io();
-                DksvHostInfo.IoCountersBean ioCountersBean = dksvHostInfo.getIo_counters().get(0);
-                BigInteger packetsSent = ioCountersBean.getPacketsSent();
-                io.setPackage_sent(packetsSent.longValue());
-                io.setPackage_recv(ioCountersBean.getPacketsRecv().longValue());
-                hostRunningVO.setIo(io);
+                    HostRunningVO.Io io = new HostRunningVO.Io();
+                    DksvHostInfo.IoCountersBean ioCountersBean = dksvHostInfo.getIo_counters().get(0);
+                    BigInteger packetsSent = ioCountersBean.getPacketsSent();
+                    io.setPackage_sent(packetsSent.longValue());
+                    io.setPackage_recv(ioCountersBean.getPacketsRecv().longValue());
+                    hostRunningVO.setIo(io);
 
-                hostRunningVO.setTimestamp(simpleDateFormat.format(new Date(System.currentTimeMillis())));
-                hostRunningVO.setHost_ip(hostEntity.getHostIp());
-                hostRunningVO.setMem(dksvHostInfo.getMem_info().getVirtual_memory().getUsedPercent()/100.0);
-                hostRunningVOList.add(hostRunningVO);
-            } catch (IOException e) {
-                Optional<HostEntity> repository = hostEntityRepository.findById(hostIp);
-                if(repository.isPresent()){
-                    HostEntity entity = repository.get();
-                    entity.setHostStatus(RunStatusEnum.STOP.getCode());
-                    hostEntityRepository.save(entity);
+                    hostRunningVO.setTimestamp(simpleDateFormat.format(new Date(System.currentTimeMillis())));
+                    hostRunningVO.setHost_ip(hostEntity.getHostIp());
+                    hostRunningVO.setMem(dksvHostInfo.getMem_info().getVirtual_memory().getUsedPercent()/100.0);
+
+                    hostRunningVOList.add(hostRunningVO);
+                    countDownLatch.countDown();
+                } catch (IOException e) {
+                    Optional<HostEntity> repository = hostEntityRepository.findById(hostIp);
+                    if(repository.isPresent()){
+                        HostEntity entity = repository.get();
+                        entity.setHostStatus(RunStatusEnum.STOP.getCode());
+                        hostEntityRepository.save(entity);
+                    }
                 }
-            }
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return hostRunningVOList;
     }

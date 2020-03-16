@@ -30,9 +30,6 @@ public class AutoFlushCore implements ApplicationRunner {
     @Autowired
     private HostEntityService hostEntityService;
 
-    @Autowired
-    private GetHostInfoWebSocket getHostInfoWebSocket;
-
     @Override
     public void run(ApplicationArguments args) {
 
