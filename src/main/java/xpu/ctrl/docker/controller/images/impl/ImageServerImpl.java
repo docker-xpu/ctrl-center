@@ -6,16 +6,24 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import xpu.ctrl.docker.controller.images.ImageServer;
+import xpu.ctrl.docker.controller.images.MyHttpUtils;
 import xpu.ctrl.docker.dataobject.repository.RepositoryImageInfo;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class ImageServerImpl implements ImageServer {
+    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
     @Override
     public List<RepositoryImageInfo> getAllImageServer() throws IOException {
         List<RepositoryImageInfo> retList = Lists.newArrayList();
@@ -23,20 +31,50 @@ public class ImageServerImpl implements ImageServer {
         JSONObject jsonObject = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8));
         JSONArray jsonArray = jsonObject.getJSONArray("repositories");
         Object[] objects = jsonArray.toArray();
+
+        final CountDownLatch countDownLatch = new CountDownLatch(objects.length);
+
         for(Object o: objects){
-            RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
-            System.out.println((String)o);
-            repositoryImageInfo.setName((String)o);
-            String formatUrlString = String.format("http://139.159.254.242:5000/v2/%s/tags/list", (String) o);
-            URL formatUrl = new URL(formatUrlString);
-            JSONArray array = JSONObject.parseObject(IOUtils.toString(formatUrl, StandardCharsets.UTF_8)).getJSONArray("tags");
-            Object[] toArray = array.toArray();
-            List<String> tagList = Lists.newArrayList();
-            for(Object tag: toArray){
-                tagList.add((String)tag);
-            }
-            repositoryImageInfo.setTags(tagList);
-            retList.add(repositoryImageInfo);
+            cachedThreadPool.execute(()->{
+                RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
+                System.out.println((String)o);
+                repositoryImageInfo.setName((String)o);
+                String formatUrlString = String.format("http://139.159.254.242:5000/v2/%s/tags/list", o);
+                URL formatUrl = null;
+                try {
+                    formatUrl = new URL(formatUrlString);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                JSONArray array = null;
+                try {
+                    array = JSONObject.parseObject(IOUtils.toString(formatUrl, StandardCharsets.UTF_8)).getJSONArray("tags");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Object[] toArray = array.toArray();
+                //List<Map<String, String>> tagList = Lists.newArrayList();
+                List<RepositoryImageInfo.TagsBean> tagsBeanList = Lists.newArrayList();
+
+                HashMap<String, String> tagMap;
+                for(Object tag: toArray){
+//                    tagMap = new HashMap<>();
+//                    tagMap.put((String)tag, MyHttpUtils.getEtag((String)o, (String)tag));
+                    RepositoryImageInfo.TagsBean tagsBean = new RepositoryImageInfo.TagsBean();
+                    tagsBean.setTagName((String)tag);
+                    tagsBean.setSha256(MyHttpUtils.getEtag((String)o, (String)tag));
+                    tagsBeanList.add(tagsBean);
+                }
+
+                repositoryImageInfo.setTags(tagsBeanList);
+                retList.add(repositoryImageInfo);
+                countDownLatch.countDown();
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return retList;
     }

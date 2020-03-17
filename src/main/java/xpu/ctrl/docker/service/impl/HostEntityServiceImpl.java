@@ -2,11 +2,10 @@ package xpu.ctrl.docker.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import xpu.ctrl.docker.dataobject.DksvContainerInfo;
 import xpu.ctrl.docker.dataobject.DksvHostInfo;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.dao.HostEntityDao;
@@ -17,10 +16,8 @@ import org.springframework.stereotype.Service;
 import xpu.ctrl.docker.util.EnumUtil;
 import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.HostRunningVO;
-import xpu.ctrl.docker.vo.HostRunningVOArray;
 
 import javax.annotation.Resource;
-import javax.management.Query;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
@@ -48,9 +45,8 @@ public class HostEntityServiceImpl implements HostEntityService {
     private HostEntityRepository hostEntityRepository;
 
     private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+    private static ExecutorService cachedThreadPool2 = Executors.newCachedThreadPool();
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
     @Override
     public List<HostRunningVO> getRunningHost() {
         List<HostEntity> hostStatus = hostEntityRepository.findAllByHostStatus(RunStatusEnum.RUNNING.getCode());
@@ -161,29 +157,43 @@ public class HostEntityServiceImpl implements HostEntityService {
     public List<HostEntityVO> getAllHost() {
         List<HostEntity> allByHostStatus = hostEntityRepository.findAllByHostStatus(RunStatusEnum.RUNNING.getCode());
         List<HostEntityVO> hostEntityVOList = Lists.newArrayListWithCapacity(allByHostStatus.size());
-        URL url;
-        HostEntityVO hostEntityVO;
+        final CountDownLatch countDownLatch = new CountDownLatch(allByHostStatus.size());
         for(HostEntity hostEntity: allByHostStatus){
-            String hostIp = hostEntity.getHostIp();
-            hostEntityVO = toVO(hostEntity);
-            try{
-                url = new URL(String.format("http://%s:8080/api/host/info", hostIp));
-                String data = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getString("data");
-                DksvHostInfo dksvHostInfo = JSONObject.parseObject(data, DksvHostInfo.class);
-                hostEntityVO.setBootTime(dksvHostInfo.getHost_info().getBootTime());
-                hostEntityVO.setUpTime(dksvHostInfo.getHost_info().getUptime());
-                hostEntityVO.setLogical_cores(dksvHostInfo.getCpu_info().getLogical_cores());
-                hostEntityVO.setPhysical_cores(dksvHostInfo.getCpu_info().getPhysical_cores());
-                hostEntityVO.setDisk_free(dksvHostInfo.getDisk_info().getFree());
-                hostEntityVO.setDisk_total(dksvHostInfo.getDisk_info().getTotal());
-                hostEntityVO.setHostKernelVersion(dksvHostInfo.getHost_info().getKernelVersion());
-                hostEntityVO.setHostPlatformOs(dksvHostInfo.getHost_info().getPlatform());
-                hostEntityVO.setMemFree(dksvHostInfo.getMem_info().getVirtual_memory().getFree());
-                hostEntityVO.setMemTotal(dksvHostInfo.getMem_info().getVirtual_memory().getTotal());
-                hostEntityVOList.add(hostEntityVO);
-            }catch (IOException e){
-                e.printStackTrace();
-            }
+            cachedThreadPool2.execute(()->{
+                String hostIp = hostEntity.getHostIp();
+                HostEntityVO hostEntityVO = toVO(hostEntity);
+                URL url;
+                try{
+                    url = new URL(String.format("http://%s:8080/api/host/info", hostIp));
+                    String data = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getString("data");
+                    DksvHostInfo dksvHostInfo = JSONObject.parseObject(data, DksvHostInfo.class);
+                    hostEntityVO.setBootTime(dksvHostInfo.getHost_info().getBootTime());
+                    hostEntityVO.setUpTime(dksvHostInfo.getHost_info().getUptime());
+                    hostEntityVO.setLogical_cores(dksvHostInfo.getCpu_info().getLogical_cores());
+                    hostEntityVO.setPhysical_cores(dksvHostInfo.getCpu_info().getPhysical_cores());
+                    hostEntityVO.setDisk_free(dksvHostInfo.getDisk_info().getFree());
+                    hostEntityVO.setDisk_total(dksvHostInfo.getDisk_info().getTotal());
+                    hostEntityVO.setHostKernelVersion(dksvHostInfo.getHost_info().getKernelVersion());
+                    hostEntityVO.setHostPlatformOs(dksvHostInfo.getHost_info().getPlatform());
+                    hostEntityVO.setMemFree(dksvHostInfo.getMem_info().getVirtual_memory().getFree());
+                    hostEntityVO.setMemTotal(dksvHostInfo.getMem_info().getVirtual_memory().getTotal());
+
+                    //http://139.159.254.242:8080//api/container/list/
+                    URL url1 = new URL(String.format("http://%s:8080//api/container/list/", hostIp));
+                    String string = JSONObject.parseObject(IOUtils.toString(url1, StandardCharsets.UTF_8)).getString("data");
+                    List<DksvContainerInfo> containerInfoList = JSONObject.parseArray(string, DksvContainerInfo.class);
+                    hostEntityVO.setContainers(containerInfoList);
+                    hostEntityVOList.add(hostEntityVO);
+                    countDownLatch.countDown();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return hostEntityVOList;
     }
