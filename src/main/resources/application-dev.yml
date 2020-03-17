@@ -3,10 +3,10 @@ spring:
     multipart:
       max-file-size: 2048MB
       max-request-size: 2048MB
-  data:
-    mongodb:
-      uri: mongodb://192.168.2.2:27017/images
-      database: images
+#  data:
+#    mongodb:
+#      uri: mongodb://192.168.2.2:27017/images
+#      database: images
   redis:
     host: 127.0.0.1
     port: 6379
