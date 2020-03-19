@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,25 +24,27 @@ public class ContainerController {
     }
 
     @PostMapping("create")
-    public ResultVO create(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig){
-        String jsonString = JSONObject.toJSONString(createFormBig);
-        String ip = JSON.parseObject(jsonString).getString("ip");
-        CreateForm createForm = new CreateForm();
-        BeanUtils.copyProperties(createFormBig, createForm);
-        log.info("【创建容器参数】{}", createFormBig);
-        String url = String.format("http://%s:8080/api/container/run/", ip);
+    public String create(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig){
+        CreateForm createForm = createFormBig.getCreateForm();
+        String ip = createFormBig.getIp();
+        log.info("【创建容器参数】{} {}", createForm, ip);
+        String url = String.format("http://%s:8080//api/container/create/", ip);
         OkHttpClient okHttpClient = new OkHttpClient();
         String upFrom = JSONObject.toJSONString(createForm);
+        log.info("【upFrom】"+upFrom);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), upFrom);
+
         Request request = new Request.Builder().post(requestBody).url(url).build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
-            if(execute.isSuccessful()) return ResultVOUtil.success();
-            return ResultVOUtil.error(1, "创建失败");
+            ResponseBody responseBody = execute.body();
+            String string = responseBody.string();
+            log.info("【responseBody】={}", string);
+            if(execute.isSuccessful()) return string;
         } catch (IOException e) {
-            e.printStackTrace();
-            return ResultVOUtil.error(2, "创建失败");
+            return JSONObject.toJSONString(ResultVOUtil.error(1, "网络异常，创建失败"));
         }
+        return JSONObject.toJSONString(ResultVOUtil.error(2, "网络异常，创建失败"));
     }
 
     @PostMapping("start")
@@ -84,9 +85,7 @@ public class ContainerController {
     @PostMapping("delete")
     public ResultVO delete(String ip, String container_name, Boolean bol){
         String url = String.format("http://%s:8080/api/container/remove", ip);
-
         ContainerFormDelete containerFormDelete = new ContainerFormDelete(container_name, bol);
-
         OkHttpClient okHttpClient = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSON.toJSONString(containerFormDelete));
         Request request = new Request.Builder().post(requestBody).url(url).build();

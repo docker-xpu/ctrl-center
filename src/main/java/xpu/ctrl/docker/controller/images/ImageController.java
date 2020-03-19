@@ -3,7 +3,6 @@ package xpu.ctrl.docker.controller.images;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xpu.ctrl.docker.dataobject.repository.RepositoryImageInfo;
@@ -11,7 +10,6 @@ import xpu.ctrl.docker.util.ResultVOUtil;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
