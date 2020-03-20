@@ -177,8 +177,8 @@ public class HostEntityServiceImpl implements HostEntityService {
                     hostEntityVO.setHostPlatformOs(dksvHostInfo.getHost_info().getPlatform());
                     hostEntityVO.setMemFree(dksvHostInfo.getMem_info().getVirtual_memory().getFree());
                     hostEntityVO.setMemTotal(dksvHostInfo.getMem_info().getVirtual_memory().getTotal());
+                    hostEntityVO.setLoadInfo(dksvHostInfo.getLoad_info());
 
-                    //http://139.159.254.242:8080//api/container/list/
                     URL url1 = new URL(String.format("http://%s:8080//api/container/list/", hostIp));
                     String string = JSONObject.parseObject(IOUtils.toString(url1, StandardCharsets.UTF_8)).getString("data");
                     List<DksvContainerInfo> containerInfoList = JSONObject.parseArray(string, DksvContainerInfo.class);

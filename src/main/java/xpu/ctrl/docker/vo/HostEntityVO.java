@@ -2,6 +2,7 @@ package xpu.ctrl.docker.vo;
 
 import lombok.Data;
 import xpu.ctrl.docker.dataobject.DksvContainerInfo;
+import xpu.ctrl.docker.dataobject.DksvHostInfo;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -28,8 +29,8 @@ public class HostEntityVO {
     private BigInteger memFree;
 
     private String hostStatusStr;
-
     private Integer hostStatus;
+    private DksvHostInfo.LoadInfoBean loadInfo;
 
     private List<DksvContainerInfo> containers;
 }

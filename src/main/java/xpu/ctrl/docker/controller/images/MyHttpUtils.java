@@ -1,5 +1,7 @@
 package xpu.ctrl.docker.controller.images;
 
+import xpu.ctrl.docker.controller.RemoteRepositoryContants;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -8,11 +10,10 @@ import java.util.Set;
 
 public class MyHttpUtils {
     public static String getEtag(String name, String tag){
-        //URL url = new URL(" http://139.159.254.242:5000/v2/nginx/manifests/latest");
         URL url;
         URLConnection conn;
         try {
-            url = new URL(String.format("http://139.159.254.242:5000/v2/%s/manifests/%s", name, tag));
+            url = new URL(String.format("http://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, tag));
             conn = url.openConnection();
             Map headers = conn.getHeaderFields();
             Set<String> keys = headers.keySet();

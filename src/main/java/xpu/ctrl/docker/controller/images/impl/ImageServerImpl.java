@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
+import xpu.ctrl.docker.controller.RemoteRepositoryContants;
 import xpu.ctrl.docker.controller.images.ImageServer;
 import xpu.ctrl.docker.controller.images.MyHttpUtils;
 import xpu.ctrl.docker.dataobject.repository.RepositoryImageInfo;
@@ -27,7 +28,7 @@ public class ImageServerImpl implements ImageServer {
     @Override
     public List<RepositoryImageInfo> getAllImageServer() throws IOException {
         List<RepositoryImageInfo> retList = Lists.newArrayList();
-        URL url = new URL("http://139.159.254.242:5000/v2/_catalog");
+        URL url = new URL(String.format("http://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
         JSONObject jsonObject = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8));
         JSONArray jsonArray = jsonObject.getJSONArray("repositories");
         Object[] objects = jsonArray.toArray();
@@ -39,7 +40,7 @@ public class ImageServerImpl implements ImageServer {
                 RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
                 System.out.println((String)o);
                 repositoryImageInfo.setName((String)o);
-                String formatUrlString = String.format("http://139.159.254.242:5000/v2/%s/tags/list", o);
+                String formatUrlString = String.format("http://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
                 URL formatUrl = null;
                 try {
                     formatUrl = new URL(formatUrlString);

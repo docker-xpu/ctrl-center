@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xpu.ctrl.docker.controller.RemoteRepositoryContants;
 import xpu.ctrl.docker.dataobject.repository.RepositoryImageInfo;
 import xpu.ctrl.docker.util.ResultVOUtil;
 import xpu.ctrl.docker.vo.ResultVO;
@@ -31,7 +32,7 @@ public class ImageController {
 
     @RequestMapping("delete")
     public ResultVO delete(String name, String sha256){
-        String url = String.format("http://139.159.254.242:5000/v2/%s/manifests/%s", name, sha256);
+        String url = String.format("http://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, sha256);
         OkHttpClient okHttpClient = new OkHttpClient();
 
         Request request = new Request.Builder().delete().url(url).build();
