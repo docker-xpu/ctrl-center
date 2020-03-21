@@ -27,7 +27,7 @@ public class MySFTPController {
 
     @GetMapping("list")
     public String listFiles(@RequestParam(value = "path", defaultValue = "/") String path, String ip){
-        String urlString = String.format("http://%s:8080/api/host/list/files/?path=%s", ip, path);
+        String urlString = String.format("http://%s:8080//api/host/listFiles/?path=%s", ip, path);
         try {
             URI url = new URI(urlString);
             return IOUtils.toString(url, StandardCharsets.UTF_8);

@@ -28,7 +28,7 @@ public class ImageServerImpl implements ImageServer {
     @Override
     public List<RepositoryImageInfo> getAllImageServer() throws IOException {
         List<RepositoryImageInfo> retList = Lists.newArrayList();
-        URL url = new URL(String.format("http://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
+        URL url = new URL(String.format("https://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
         JSONObject jsonObject = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8));
         JSONArray jsonArray = jsonObject.getJSONArray("repositories");
         Object[] objects = jsonArray.toArray();
@@ -40,7 +40,7 @@ public class ImageServerImpl implements ImageServer {
                 RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
                 System.out.println((String)o);
                 repositoryImageInfo.setName((String)o);
-                String formatUrlString = String.format("http://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
+                String formatUrlString = String.format("https://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
                 URL formatUrl = null;
                 try {
                     formatUrl = new URL(formatUrlString);
