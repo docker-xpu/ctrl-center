@@ -44,14 +44,14 @@ public class ImageServerImpl implements ImageServer {
                 URL formatUrl = null;
                 try {
                     formatUrl = new URL(formatUrlString);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    countDownLatch.countDown();
                 }
                 JSONArray array = null;
                 try {
                     array = JSONObject.parseObject(IOUtils.toString(formatUrl, StandardCharsets.UTF_8)).getJSONArray("tags");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    countDownLatch.countDown();
                 }
                 Object[] toArray = array.toArray();
                 //List<Map<String, String>> tagList = Lists.newArrayList();

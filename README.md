@@ -59,6 +59,6 @@ mongod -f /usr/local/mongodb/mongodb.conf
 
 4、开启MySQL
 
-5、开启MyDocker，注意配置6060端口
+5、开启MyDocker，注意配置6060端口(以及私服地址配置)
 
 6、启动SpringBoot
