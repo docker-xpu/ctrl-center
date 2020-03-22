@@ -57,7 +57,8 @@ public class FlushHostInfoServiceImpl implements FlushHostInfoService {
             Object o = redisTemplate.opsForValue().get(k);
             log.info("【反序列化化结果】{}", o);
             redisTemplate.delete(k);
-            hostEntityHardWareRepository.save((HostEntityHardWare)o);
+            //TODO 先不存储数据
+            //hostEntityHardWareRepository.save((HostEntityHardWare)o);
         }
     }
 }
