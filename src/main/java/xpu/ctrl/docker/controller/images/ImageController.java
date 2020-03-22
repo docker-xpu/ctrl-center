@@ -3,6 +3,7 @@ package xpu.ctrl.docker.controller.images;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xpu.ctrl.docker.controller.RemoteRepositoryContants;
@@ -30,12 +31,11 @@ public class ImageController {
         }
     }
 
-    @RequestMapping("delete")
+    @PostMapping("delete")
     public ResultVO delete(String name, String sha256){
         String url = String.format("https://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, sha256);
         OkHttpClient okHttpClient = new OkHttpClient();
-
-        Request request = new Request.Builder().delete().url(url).build();
+        Request request = new Request.Builder().delete().url(url).addHeader("Accept", "application/vnd.docker.distribution.manifest.v2+json").build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
             if(execute.isSuccessful()) return ResultVOUtil.success();

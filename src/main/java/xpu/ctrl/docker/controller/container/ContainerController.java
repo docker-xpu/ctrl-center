@@ -33,7 +33,6 @@ public class ContainerController {
         String upFrom = JSONObject.toJSONString(createForm);
         log.info("【upFrom】"+upFrom);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), upFrom);
-
         Request request = new Request.Builder().post(requestBody).url(url).build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
