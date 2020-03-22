@@ -29,14 +29,12 @@ public class ImageServerImpl implements ImageServer {
     public List<RepositoryImageInfo> getAllImageServer() throws IOException {
         List<RepositoryImageInfo> retList = Lists.newArrayList();
         URL url = new URL(String.format("http://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
-        log.info("【url】{}", url.toString());
         JSONArray jsonArray = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getJSONArray("repositories");
         Object[] objects = jsonArray.toArray();
         final CountDownLatch countDownLatch = new CountDownLatch(objects.length);
         for(Object o: objects){
             cachedThreadPool.execute(()->{
                 RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
-                System.out.println("拿到的Tag=" + o);
                 repositoryImageInfo.setName((String)o);
                 String formatUrlString = String.format("http://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
                 URL formatUrl;
@@ -59,7 +57,7 @@ public class ImageServerImpl implements ImageServer {
                     repositoryImageInfo.setTags(tagsBeanList);
                     retList.add(repositoryImageInfo);
                 } catch (Exception e) {
-                    log.error("【未清除的Tag标记】");
+                    log.error("【Not Found Tag. It's not a error!】");
                 }finally {
                     countDownLatch.countDown();
                 }

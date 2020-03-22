@@ -19,7 +19,7 @@ import java.io.IOException;
 public class ContainerToImageController {
     @PostMapping("to-image")
     public String toImage(String container_name, String target_image_name, String target_image_tag, String ip){
-        log.info("【接收参数】{}、{}、{}、{}", container_name, target_image_name, target_image_tag, ip);
+        //log.info("【接收参数】{}、{}、{}、{}", container_name, target_image_name, target_image_tag, ip);
         String urlCommit = String.format("http://%s:8080//api/container/commit/", ip);
         CommitForm commitForm = new CommitForm(container_name, target_image_name);
         OkHttpClient okHttpClient = new OkHttpClient();
@@ -28,28 +28,26 @@ public class ContainerToImageController {
         try {
             Response execute = okHttpClient.newCall(request).execute();
             if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
-                //第一步 成功
-                log.info("【第一步 成功】");
+                log.info("【Step one success】");
                 String urlTag = String.format("http://%s:8080/api/image/tag/", ip);
                 TagForm tagForm = new TagForm(target_image_name + ":latest", String.format("%s:5000/%s:%s", RemoteRepositoryContants.REPOSITORY_IP, target_image_name, target_image_tag));
                 requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(tagForm));
                 request = new Request.Builder().post(requestBody).url(urlTag).build();
                 execute = okHttpClient.newCall(request).execute();
                 if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
-                    //第二步 成功
-                    log.info("【第二步 成功】");
+                    log.info("【Step two success】");
                     String urlPush = String.format("http://%s:8080/api/image/push/", ip);
                     PushForm pushForm = new PushForm(tagForm.getTarget_image_name(), RemoteRepositoryContants.REPOSITORY_IP);
                     requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(pushForm));
                     request = new Request.Builder().post(requestBody).url(urlPush).build();
                     execute = okHttpClient.newCall(request).execute();
-                    log.info("【第三步 成功】");
+                    log.info("【Step three success】");
                     return execute.body().string();
                 }
             }
             return execute.body().string();
         } catch (IOException e) {
-            return JSON.toJSONString(ResultVOUtil.error(1, "网络错误"));
+            return JSON.toJSONString(ResultVOUtil.error(1, "Network Error !!!"));
         }
     }
 }
