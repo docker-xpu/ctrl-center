@@ -4,14 +4,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 import xpu.ctrl.docker.controller.RemoteRepositoryContants;
 import xpu.ctrl.docker.controller.images.ImageServer;
 import xpu.ctrl.docker.controller.images.MyHttpUtils;
 import xpu.ctrl.docker.dataobject.repository.RepositoryImageInfo;
-import xpu.ctrl.docker.util.OKHttpClientBuilder;
 
 import java.io.IOException;
 import java.net.URL;
@@ -30,22 +28,17 @@ public class ImageServerImpl implements ImageServer {
     @Override
     public List<RepositoryImageInfo> getAllImageServer() throws IOException {
         List<RepositoryImageInfo> retList = Lists.newArrayList();
-        URL url = new URL(String.format("https://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
+        URL url = new URL(String.format("http://%s:5000/v2/_catalog", RemoteRepositoryContants.REPOSITORY_IP));
         log.info("【url】{}", url.toString());
-        Request request = new Request.Builder().get().url(url).build();
-        Response response = OKHttpClientBuilder.buildOKHttpClient().build().newCall(request).execute();
-        JSONObject jsonObject = JSONObject.parseObject(response.body().string());
-        JSONArray jsonArray = jsonObject.getJSONArray("repositories");
+        JSONArray jsonArray = JSONObject.parseObject(IOUtils.toString(url, StandardCharsets.UTF_8)).getJSONArray("repositories");
         Object[] objects = jsonArray.toArray();
-
         final CountDownLatch countDownLatch = new CountDownLatch(objects.length);
-
         for(Object o: objects){
             cachedThreadPool.execute(()->{
                 RepositoryImageInfo repositoryImageInfo = new RepositoryImageInfo();
                 System.out.println("拿到的Tag=" + o);
                 repositoryImageInfo.setName((String)o);
-                String formatUrlString = String.format("https://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
+                String formatUrlString = String.format("http://%s:5000/v2/%s/tags/list", RemoteRepositoryContants.REPOSITORY_IP, o);
                 URL formatUrl;
                 URLConnection urlConnection;
                 try {
@@ -66,7 +59,7 @@ public class ImageServerImpl implements ImageServer {
                     repositoryImageInfo.setTags(tagsBeanList);
                     retList.add(repositoryImageInfo);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("【未清除的Tag标记】");
                 }finally {
                     countDownLatch.countDown();
                 }

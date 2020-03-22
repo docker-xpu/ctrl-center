@@ -1,9 +1,7 @@
 package xpu.ctrl.docker.controller.images;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import xpu.ctrl.docker.controller.RemoteRepositoryContants;
 
 import java.io.IOException;
@@ -20,7 +18,7 @@ public class MyHttpUtils {
         URL url;
         URLConnection conn;
         try {
-            url = new URL(String.format("https://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, tag));
+            url = new URL(String.format("http://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, tag));
             conn = url.openConnection();
             conn.setRequestProperty("Accept", "application/vnd.docker.distribution.manifest.v2+json");
 //            String string = IOUtils.toString(conn.getInputStream());
@@ -32,8 +30,8 @@ public class MyHttpUtils {
             for(String key: keys){
                 String val = conn.getHeaderField(key);
                 System.out.println(key+"="+val);
-                if("Etag".equals(key)){
-                    return val.substring(1, val.length()-1);
+                if("Docker-Content-Digest".equals(key)){
+                    return val;
                 }
             }
         } catch (IOException e) {

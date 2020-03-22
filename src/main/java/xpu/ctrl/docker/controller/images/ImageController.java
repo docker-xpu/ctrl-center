@@ -33,7 +33,7 @@ public class ImageController {
 
     @PostMapping("delete")
     public ResultVO delete(String name, String sha256){
-        String url = String.format("https://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, sha256);
+        String url = String.format("http://%s:5000/v2/%s/manifests/%s", RemoteRepositoryContants.REPOSITORY_IP, name, sha256);
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().delete().url(url).addHeader("Accept", "application/vnd.docker.distribution.manifest.v2+json").build();
         try {

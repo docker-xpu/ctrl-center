@@ -2,6 +2,7 @@ package xpu.ctrl.docker.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -17,59 +18,58 @@ import java.io.IOException;
 @RequestMapping("/change")
 public class ContainerToImageController {
     @PostMapping("to-image")
-    public String toImage(String image_name, String target_image_name, String ip){
-        //"target_image_name": "139.159.254.242:5000/python:0.1" 这里的target_image_name = python:0.1
-        //打印参数
-        log.info("【参数】{}、{}、{}", image_name, target_image_name, ip);
-        String url_tag = String.format("http://%s:8080/api/image/tag/", ip);
+    public String toImage(String container_name, String target_image_name, String target_image_tag, String ip){
+        log.info("【接收参数】{}、{}、{}、{}", container_name, target_image_name, target_image_tag, ip);
+        String urlCommit = String.format("http://%s:8080//api/container/commit/", ip);
+        CommitForm commitForm = new CommitForm(container_name, target_image_name);
         OkHttpClient okHttpClient = new OkHttpClient();
-        TagForm tagForm = new TagForm();
-        tagForm.setImage_name(image_name);
-        tagForm.setTarget_image_name(String.format("%s:5000/%s", RemoteRepositoryContants.REPOSITORY_IP, target_image_name));
-        String upFrom = JSONObject.toJSONString(tagForm);
-        log.info("【tagForm】"+upFrom);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), upFrom);
-        Request request = new Request.Builder().post(requestBody).url(url_tag).build();
-        Response execute;
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(commitForm));
+        Request request = new Request.Builder().post(requestBody).url(urlCommit).build();
         try {
-            execute = okHttpClient.newCall(request).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return JSON.toJSONString(ResultVOUtil.error(1, "网络错误2"));
-        }
-        if(execute.isSuccessful()){
-            String url_push = String.format("http://%s:8080//api/image/push/", ip);
-            PushForm pushForm = new PushForm();
-            pushForm.setImage_name(String.format("%s:5000%s", RemoteRepositoryContants.REPOSITORY_IP, target_image_name));
-            pushForm.setPath(String.format("%s:5000", RemoteRepositoryContants.REPOSITORY_IP));
-            OkHttpClient okHttpClientPush = new OkHttpClient();
-            String pushFormString = JSONObject.toJSONString(pushForm);
-            log.info("【pushForm】" + pushFormString);
-            RequestBody requestBodyPush = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), pushFormString);
-            Request requestPush = new Request.Builder().post(requestBodyPush).url(url_push).build();
-            Response executePush;
-            try {
-                executePush = okHttpClientPush.newCall(requestPush).execute();
-                if(executePush.isSuccessful()){
-                    return executePush.body().string();
+            Response execute = okHttpClient.newCall(request).execute();
+            if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
+                //第一步 成功
+                log.info("【第一步 成功】");
+                String urlTag = String.format("http://%s:8080/api/image/tag/", ip);
+                TagForm tagForm = new TagForm(target_image_name + ":latest", String.format("%s:5000/%s:%s", RemoteRepositoryContants.REPOSITORY_IP, target_image_name, target_image_tag));
+                requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(tagForm));
+                request = new Request.Builder().post(requestBody).url(urlTag).build();
+                execute = okHttpClient.newCall(request).execute();
+                if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
+                    //第二步 成功
+                    log.info("【第二步 成功】");
+                    String urlPush = String.format("http://%s:8080/api/image/push/", ip);
+                    PushForm pushForm = new PushForm(tagForm.getTarget_image_name(), RemoteRepositoryContants.REPOSITORY_IP);
+                    requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(pushForm));
+                    request = new Request.Builder().post(requestBody).url(urlPush).build();
+                    execute = okHttpClient.newCall(request).execute();
+                    log.info("【第三步 成功】");
+                    return execute.body().string();
                 }
-                return JSON.toJSONString(ResultVOUtil.error(1, "网络错误3"));
-            } catch (IOException e) {
-                e.printStackTrace();
-                return JSON.toJSONString(ResultVOUtil.error(1, "网络错误4"));
             }
+            return execute.body().string();
+        } catch (IOException e) {
+            return JSON.toJSONString(ResultVOUtil.error(1, "网络错误"));
         }
-        return JSON.toJSONString(ResultVOUtil.error(1, "网络错误1"));
     }
 }
 
 @Data
+@AllArgsConstructor
+class CommitForm{
+    private String container_name;
+    private String ref;
+}
+
+@Data
+@AllArgsConstructor
 class TagForm{
     private String image_name;
     private String target_image_name;
 }
 
 @Data
+@AllArgsConstructor
 class PushForm{
     private String image_name;
     private String path;
