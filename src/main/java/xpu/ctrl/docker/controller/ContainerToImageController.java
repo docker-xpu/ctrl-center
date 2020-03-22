@@ -27,14 +27,16 @@ public class ContainerToImageController {
         Request request = new Request.Builder().post(requestBody).url(urlCommit).build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
-            if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
+            String executeBody = execute.body().string();
+            if(JSONObject.parseObject(executeBody).getInteger("status").equals(0)){
                 log.info("【Step one success】");
                 String urlTag = String.format("http://%s:8080/api/image/tag/", ip);
                 TagForm tagForm = new TagForm(target_image_name + ":latest", String.format("%s:5000/%s:%s", RemoteRepositoryContants.REPOSITORY_IP, target_image_name, target_image_tag));
                 requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSONObject.toJSONString(tagForm));
                 request = new Request.Builder().post(requestBody).url(urlTag).build();
                 execute = okHttpClient.newCall(request).execute();
-                if(JSONObject.parseObject(execute.body().string()).getInteger("status").equals(0)){
+                String executeBodyTwo = execute.body().string();
+                if(JSONObject.parseObject(executeBodyTwo).getInteger("status").equals(0)){
                     log.info("【Step two success】");
                     String urlPush = String.format("http://%s:8080/api/image/push/", ip);
                     PushForm pushForm = new PushForm(tagForm.getTarget_image_name(), RemoteRepositoryContants.REPOSITORY_IP);
@@ -44,8 +46,9 @@ public class ContainerToImageController {
                     log.info("【Step three success】");
                     return execute.body().string();
                 }
+                return executeBodyTwo;
             }
-            return execute.body().string();
+            return executeBody;
         } catch (IOException e) {
             return JSON.toJSONString(ResultVOUtil.error(1, "Network Error !!!"));
         }

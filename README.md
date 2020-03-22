@@ -62,3 +62,7 @@ mongod -f /usr/local/mongodb/mongodb.conf
 5、开启MyDocker，注意配置6060端口(以及私服地址配置)
 
 6、启动SpringBoot
+
+```bash
+docker run -d -p 5000:5000 --name server-registry -v /tmp/registry:/tmp/registry -e REGISTRY_STORAGE_DELETE_ENABLED=true docker.io/registry:latest
+```
