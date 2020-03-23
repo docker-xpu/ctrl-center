@@ -2,6 +2,7 @@ package xpu.ctrl.docker.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import java.util.concurrent.Executors;
  * @author makejava
  * @since 2020-03-12 12:29:32
  */
+@Slf4j
 @Service
 public class HostEntityServiceImpl implements HostEntityService {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -184,9 +186,11 @@ public class HostEntityServiceImpl implements HostEntityService {
                     List<DksvContainerInfo> containerInfoList = JSONObject.parseArray(string, DksvContainerInfo.class);
                     hostEntityVO.setContainers(containerInfoList);
                     hostEntityVOList.add(hostEntityVO);
-                    countDownLatch.countDown();
                 }catch (IOException e){
-                    e.printStackTrace();
+                    hostEntity.setHostStatus(RunStatusEnum.STOP.getCode());
+                    log.error("【检测到示例异常停止】{}", hostEntityRepository.save(hostEntity));
+                }finally {
+                    countDownLatch.countDown();
                 }
             });
         }

@@ -22,9 +22,7 @@ import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

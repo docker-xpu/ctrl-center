@@ -2,6 +2,7 @@ package xpu.ctrl.docker.controller.files;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import okhttp3.RequestBody;
 import org.apache.commons.io.IOUtils;
@@ -18,10 +19,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+@Slf4j
 @RestController
 @RequestMapping("/sftp")
 public class MySFTPController {
+    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
     @Autowired
     private FileService fileService;
 
@@ -39,7 +46,7 @@ public class MySFTPController {
 
     @PostMapping("upload")
     public String uploadToRemoteHost(String ip, String path, String fileId) {
-        String url = String.format("http://%s:8080//api/host/file/create/", ip);
+        String url = String.format("http://%s:8080//api/host/uploadFile/", ip);
         Optional<ImageFile> bigFileById = fileService.getBigFileById(fileId);
         if(bigFileById.isPresent()){
             ImageFile imageFile = bigFileById.get();
@@ -72,6 +79,58 @@ public class MySFTPController {
             }
         }
         return JSONObject.toJSONString(ResultVOUtil.error(3, "文件不存在"));
+    }
+
+    @PostMapping("upload-list")
+    public String uploadToRemoteListHost(String[] ips, String path, String fileId) {
+        log.info("【Args】{}、{}、{}", ips, path, fileId);
+        CountDownLatch countDownLatch = new CountDownLatch(ips.length);
+        for(String ip: ips){
+            cachedThreadPool.execute(()->{
+                String url = String.format("http://%s:8080//api/host/uploadFile/", ip);
+                Optional<ImageFile> bigFileById = fileService.getBigFileById(fileId);
+                if (bigFileById.isPresent()) {
+                    ImageFile imageFile = bigFileById.get();
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    MultipartBody.Builder requestBody = new MultipartBody.Builder();
+                    requestBody.setType(MultipartBody.FORM);
+
+                    RequestBody body = RequestBody.create(MediaType.parse("application/octet-stream"), imageFile.getContent().getData());
+                    // 参数分别为 请求key 文件名称 RequestBody
+                    requestBody.addFormDataPart("file", imageFile.getName(), body);
+
+                    //要上传的文字参数
+                    Map<String, String> map = new HashMap<>();
+                    map.put("name", imageFile.getName());
+                    map.put("path", path);
+                    for (String key : map.keySet()) {
+                        requestBody.addFormDataPart(key, map.get(key));
+                    }
+                    MultipartBody build = requestBody.build();
+                    try {
+                        Request request = new Request.Builder().post(build).url(url).build();
+                        Response execute = okHttpClient.newCall(request).execute();
+                        if (execute.isSuccessful()) {
+                            execute.body().string();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }finally {
+                        System.out.println("减一"+ip);
+                        countDownLatch.countDown();
+                    }
+                }else {
+                    System.out.println("无文件，减一"+ip);
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return JSONObject.toJSONString(ResultVOUtil.success());
     }
 }
 
