@@ -12,7 +12,6 @@ import xpu.ctrl.docker.dataobject.ImageFile;
 import xpu.ctrl.docker.service.FileService;
 import xpu.ctrl.docker.util.ResultVOUtil;
 
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -130,6 +129,59 @@ public class MySFTPController {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return JSONObject.toJSONString(ResultVOUtil.success());
+    }
+
+    @PostMapping("upload-cluster")
+    public String uploadToRemoteListHost(String podName, String path, String fileId) {
+        log.info("【Args】{}、{}、{}", podName, path, fileId);
+        //TODO 文件分发
+//        CountDownLatch countDownLatch = new CountDownLatch(ips.length);
+//        for(String ip: ips){
+//            cachedThreadPool.execute(()->{
+//                String url = String.format("http://%s:8080//api/host/uploadFile/", ip);
+//                Optional<ImageFile> bigFileById = fileService.getBigFileById(fileId);
+//                if (bigFileById.isPresent()) {
+//                    ImageFile imageFile = bigFileById.get();
+//                    OkHttpClient okHttpClient = new OkHttpClient();
+//                    MultipartBody.Builder requestBody = new MultipartBody.Builder();
+//                    requestBody.setType(MultipartBody.FORM);
+//
+//                    RequestBody body = RequestBody.create(MediaType.parse("application/octet-stream"), imageFile.getContent().getData());
+//                    // 参数分别为 请求key 文件名称 RequestBody
+//                    requestBody.addFormDataPart("file", imageFile.getName(), body);
+//
+//                    //要上传的文字参数
+//                    Map<String, String> map = new HashMap<>();
+//                    map.put("name", imageFile.getName());
+//                    map.put("path", path);
+//                    for (String key : map.keySet()) {
+//                        requestBody.addFormDataPart(key, map.get(key));
+//                    }
+//                    MultipartBody build = requestBody.build();
+//                    try {
+//                        Request request = new Request.Builder().post(build).url(url).build();
+//                        Response execute = okHttpClient.newCall(request).execute();
+//                        if (execute.isSuccessful()) {
+//                            execute.body().string();
+//                        }
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }finally {
+//                        System.out.println("减一"+ip);
+//                        countDownLatch.countDown();
+//                    }
+//                }else {
+//                    System.out.println("无文件，减一"+ip);
+//                    countDownLatch.countDown();
+//                }
+//            });
+//        }
+//        try {
+//            countDownLatch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         return JSONObject.toJSONString(ResultVOUtil.success());
     }
 }

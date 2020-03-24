@@ -50,6 +50,21 @@ public class HostEntityServiceImpl implements HostEntityService {
     private static ExecutorService cachedThreadPool2 = Executors.newCachedThreadPool();
 
     @Override
+    public List<HostEntityVO> getRunningHostByLoad(int num) {
+        List<HostEntityVO> allHost = getAllHost();
+        List<HostEntityVO> retHost = Lists.newArrayListWithCapacity(num);
+
+        for(HostEntityVO hostEntityVO: allHost){
+            if(retHost.size() >= num) return retHost;
+            //DksvHostInfo.LoadInfoBean loadInfo = hostEntityVO.getLoadInfo();
+            //if (loadInfo.getLoad().getLoad5() < 0.8){
+                retHost.add(hostEntityVO);
+            //}
+        }
+        return retHost;
+    }
+
+    @Override
     public List<HostRunningVO> getRunningHost() {
         List<HostEntity> hostStatus = hostEntityRepository.findAllByHostStatus(RunStatusEnum.RUNNING.getCode());
         List<HostRunningVO> hostRunningVOList = Lists.newArrayListWithCapacity(hostStatus.size());
@@ -108,52 +123,6 @@ public class HostEntityServiceImpl implements HostEntityService {
         return this.hostEntityDao.queryById(hostIp);
     }
 
-    /**
-     * 查询多条数据
-     *
-     * @param offset 查询起始位置
-     * @param limit 查询条数
-     * @return 对象列表
-     */
-    @Override
-    public List<HostEntity> queryAllByLimit(int offset, int limit) {
-        return this.hostEntityDao.queryAllByLimit(offset, limit);
-    }
-
-    /**
-     * 新增数据
-     *
-     * @param hostEntity 实例对象
-     * @return 实例对象
-     */
-    @Override
-    public HostEntity insert(HostEntity hostEntity) {
-        this.hostEntityDao.insert(hostEntity);
-        return hostEntity;
-    }
-
-    /**
-     * 修改数据
-     *
-     * @param hostEntity 实例对象
-     * @return 实例对象
-     */
-    @Override
-    public HostEntity update(HostEntity hostEntity) {
-        this.hostEntityDao.update(hostEntity);
-        return this.queryById(hostEntity.getHostIp());
-    }
-
-    /**
-     * 通过主键删除数据
-     *
-     * @param hostIp 主键
-     * @return 是否成功
-     */
-    @Override
-    public boolean deleteById(String hostIp) {
-        return this.hostEntityDao.deleteById(hostIp) > 0;
-    }
 
     @Override
     public List<HostEntityVO> getAllHost() {
