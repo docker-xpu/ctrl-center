@@ -61,7 +61,7 @@ public class AutoFlushCore implements ApplicationRunner {
         new Thread(()->{
             while (true){
                 List<HostRunningVO> runningHost = hostEntityService.getRunningHost();
-                log.info("【WebSocket数据】{}", runningHost);
+                //log.info("【WebSocket数据】{}", runningHost);
                 CopyOnWriteArrayList<GetHostInfoWebSocket> webSocketSet = GetHostInfoWebSocket.webSocketSet;
                 for(GetHostInfoWebSocket getHostInfoWebSocket: webSocketSet){
                     getHostInfoWebSocket.sendMessage(JSONObject.toJSONString(runningHost));
