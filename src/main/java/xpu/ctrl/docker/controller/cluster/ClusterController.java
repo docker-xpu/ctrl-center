@@ -59,7 +59,7 @@ public class ClusterController {
     @PostMapping("list")
     public ResultVO list(){
         List<ClusterInfo> repositoryAll = clusterInfoRepository.findAll();
-
+        //TODO xxx
         List<ClusterDetailInfoVO> clusterDetailInfoVOList = Lists.newArrayList();
         return ResultVOUtil.success(clusterDetailInfoVOList);
     }
