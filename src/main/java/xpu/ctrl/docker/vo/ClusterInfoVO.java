@@ -1,14 +1,9 @@
-package xpu.ctrl.docker.entity;
+package xpu.ctrl.docker.vo;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
 @Data
-@Entity
-public class ClusterInfo {
-    @Id
+public class ClusterInfoVO {
     private String id;
 
     private String podName;
@@ -20,4 +15,8 @@ public class ClusterInfo {
     private String nginxName;
 
     private Long createTime;
+
+    private String createTimeStr;
+
+    private String gateWayIp;
 }

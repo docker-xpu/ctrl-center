@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,8 @@ import xpu.ctrl.docker.repository.HostClusterRepository;
 import xpu.ctrl.docker.service.HostEntityService;
 import xpu.ctrl.docker.util.KeyUtil;
 import xpu.ctrl.docker.util.ResultVOUtil;
+import xpu.ctrl.docker.vo.ClusterDetailInfoVO;
+import xpu.ctrl.docker.vo.ClusterInfoVO;
 import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.ResultVO;
 
@@ -55,7 +58,10 @@ public class ClusterController {
 
     @PostMapping("list")
     public ResultVO list(){
-        return ResultVOUtil.success(clusterInfoRepository.findAll());
+        List<ClusterInfo> repositoryAll = clusterInfoRepository.findAll();
+
+        List<ClusterDetailInfoVO> clusterDetailInfoVOList = Lists.newArrayList();
+        return ResultVOUtil.success(clusterDetailInfoVOList);
     }
 
     @PostMapping("remove")
@@ -104,6 +110,7 @@ public class ClusterController {
         ClusterInfo clusterInfo = new ClusterInfo();
         String verifyKey = KeyUtil.genVerifyKey();
         clusterInfo.setId(verifyKey);
+        clusterInfo.setCreateTime(System.currentTimeMillis());
         clusterInfo.setPodName(createForm.getPod_name());
         clusterInfo.setNodeNumber(createForm.getContainer_num());
         clusterInfo.setNodePort(Integer.parseInt(createForm.getHost_port()));
@@ -244,7 +251,12 @@ public class ClusterController {
         //启动Master容器
         containerController.start(gateWayHostIp, containerName);
         if(nginxConfigFile.delete()) log.info("【临时配置文件已删除】");
-        return ResultVOUtil.success();
+        ClusterInfoVO clusterInfoVO = new ClusterInfoVO();
+        BeanUtils.copyProperties(clusterInfo, clusterInfoVO);
+        clusterInfoVO.setGateWayIp(gateWayHostIp);
+        clusterInfoVO.setCreateTime(clusterInfo.getCreateTime());
+        clusterInfoVO.setCreateTimeStr(""+clusterInfo.getCreateTime());
+        return ResultVOUtil.success(clusterInfoVO);
     }
 }
 
