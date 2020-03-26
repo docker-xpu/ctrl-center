@@ -19,4 +19,6 @@ public class HostCluster {
     private Integer port;
 
     private String podId;
+
+    private String containerName;
 }

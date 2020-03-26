@@ -16,4 +16,6 @@ public class ClusterInfo {
     private Integer nodeNumber;
 
     private Integer nodePort;
+
+    private String nginxName;
 }

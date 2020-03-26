@@ -58,7 +58,9 @@ public class HostEntityServiceImpl implements HostEntityService {
             if(retHost.size() >= num) return retHost;
             //DksvHostInfo.LoadInfoBean loadInfo = hostEntityVO.getLoadInfo();
             //if (loadInfo.getLoad().getLoad5() < 0.8){
+            if(!hostEntityVO.getHostIp().equals("192.168.2.2")){
                 retHost.add(hostEntityVO);
+            }
             //}
         }
         return retHost;

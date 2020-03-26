@@ -1,0 +1,40 @@
+user  root;
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
+
+    gzip  on;
+    gzip_min_length 10k;
+    gzip_comp_level 3;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript;
+
+	upstream mycluster_server_name{
+		#Load balancing strategy
+		least_conn;
+		server 192.179.2.2:80;
+
+	}
+
+    server {
+        listen       8081
+        server_name  localhost;
+
+        location / {
+            proxy_pass http://mycluster_server_name;
+            index  index.html index.htm;
+        }
+		
+	error_page   500 502 503 504  /50x.html;
+	location = /50x.html {
+		root   html;
+	}
+    }
+}
