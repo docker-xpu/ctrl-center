@@ -55,7 +55,7 @@ public class ContainerStatus {
             private long total_usage;
             private long usage_in_kernelmode;
             private long usage_in_usermode;
-            private List<Integer> percpu_usage;
+            private List<Long> percpu_usage;
         }
 
         @Data

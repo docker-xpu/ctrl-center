@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import xpu.ctrl.docker.controller.cluster.ClusterRunningController;
+import xpu.ctrl.docker.controller.cluster.ClusterRunningService;
 import xpu.ctrl.docker.core.flush.FlushHostInfoService;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.repository.HostEntityRepository;
@@ -28,6 +30,12 @@ public class AutoFlushCore implements ApplicationRunner {
 
     @Autowired
     private HostEntityService hostEntityService;
+
+    @Autowired
+    private ClusterRunningController clusterRunningController;
+
+    @Autowired
+    private ClusterRunningService clusterRunningService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -72,6 +80,24 @@ public class AutoFlushCore implements ApplicationRunner {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            }
+        }).start();
+
+        new Thread(()->{
+            clusterRunningController.getAllRunningVO(100);
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        new Thread(()->{
+            clusterRunningService.saveAllClusterContainerRunningInfo();
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }).start();
     }

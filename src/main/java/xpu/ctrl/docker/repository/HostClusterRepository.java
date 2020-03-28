@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface HostClusterRepository extends JpaRepository<HostCluster, Integer> {
     List<HostCluster> findAllByPodId(String podId);
+    List<HostCluster> findAllByPodIdAndIp(String podId, String ip);
 }

@@ -2,10 +2,13 @@ package xpu.ctrl.docker.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
-public class ClusterDetailInfoVO {
+public class ClusterDetailInfoVO implements Serializable {
+    private static final long serialVersionUID = 458339903353462352L;
     /**
      * id : 178211
      * podName : mynginxpod
@@ -20,7 +23,8 @@ public class ClusterDetailInfoVO {
 
     private String id;
     private String podName;
-    private String createTime;
+    private String createTimeStr;
+    private Long createTime;
     private int nodeNumber;
     private int nodePort;
     private String nginxName;
@@ -29,7 +33,8 @@ public class ClusterDetailInfoVO {
     private List<HostsBean> hosts;
 
     @Data
-    public static class AvgLoadBean {
+    public static class AvgLoadBean implements Serializable{
+        private static final long serialVersionUID = 3227658250332199832L;
         /**
          * Mem : {"xAxis":["2019-03-26 10:15:30","2019-03-26 10:15:35"],"data":[0.23,0.45]}
          * Cpu : {"xAxis":["2019-03-26 10:15:30","2019-03-26 10:15:35"],"data":[0.23,0.45]}
@@ -39,14 +44,14 @@ public class ClusterDetailInfoVO {
 
         @Data
         public static class MemBean {
-            private List<String> xAxis;
-            private List<Double> data;
+            private LinkedList<String> xAxis;
+            private LinkedList<Double> data;
         }
 
         @Data
         public static class CpuBean {
-            private List<String> xAxis;
-            private List<Double> data;
+            private LinkedList<String> xAxis;
+            private LinkedList<Double> data;
         }
     }
 
