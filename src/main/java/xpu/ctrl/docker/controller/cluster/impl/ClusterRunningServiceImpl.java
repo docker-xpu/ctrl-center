@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import xpu.ctrl.docker.controller.cluster.ClusterRunningService;
 import xpu.ctrl.docker.entity.ClusterInfo;
 import xpu.ctrl.docker.entity.HostCluster;
+import xpu.ctrl.docker.enums.RunStatusEnum;
 import xpu.ctrl.docker.repository.ClusterInfoRepository;
 import xpu.ctrl.docker.repository.HostClusterRepository;
 import xpu.ctrl.docker.vo.ClusterDetailInfoVO;
@@ -42,7 +43,15 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
     @Override
     public void saveAllClusterContainerRunningInfo() {
-        List<HostCluster> hostClusters = hostClusterRepository.findAll();
+        //不能查询所有的数据
+        List<ClusterInfo> allByStatus = clusterInfoRepository.findAllByStatus(RunStatusEnum.RUNNING.getCode());
+        List<HostCluster> hostClusters = Lists.newArrayList();
+        for(ClusterInfo clusterInfo: allByStatus){
+            if(clusterInfo.getStatus().equals(RunStatusEnum.RUNNING.getCode())){
+                List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(clusterInfo.getId());
+                hostClusters.addAll(allByPodId);
+            }
+        }
         if(hostClusters.size() == 0) return;
         for(HostCluster hostCluster: hostClusters){
             getOneContainerRunning(hostCluster.getIp(), hostCluster.getContainerName(), -1);
@@ -52,6 +61,22 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
     @Override
     public ClusterDetailInfoVO getOneClusterRunningInfo(String clusterId, Integer number) {
         Optional<ClusterInfo> clusterInfoOptional = clusterInfoRepository.findById(clusterId);
+        if(clusterInfoOptional.isPresent()){
+            ClusterInfo clusterInfo = clusterInfoOptional.get();
+            if(clusterInfo.getStatus().equals(RunStatusEnum.STOP.getCode())){
+                ClusterDetailInfoVO clusterDetailInfoVO = new ClusterDetailInfoVO();
+                BeanUtils.copyProperties(clusterInfo, clusterDetailInfoVO);
+                clusterDetailInfoVO.setStatus(RunStatusEnum.STOP.getCode());
+                clusterDetailInfoVO.setCreateTimeStr(clusterDetailInfoVO.getCreateTime()+"");
+                clusterDetailInfoVO.setGateWayIp("192.168.2.2");
+                clusterDetailInfoVO.setStatusStr(RunStatusEnum.STOP.getMessage());
+                clusterDetailInfoVO.setAvgLoad(null);
+                clusterDetailInfoVO.setHosts(null);
+                clusterDetailInfoVO.setHostTree(null);
+                return clusterDetailInfoVO;
+            }
+        }
+
         if(!clusterInfoOptional.isPresent()) return null;
         ClusterDetailInfoVO clusterDetailInfoVORet = (ClusterDetailInfoVO) redisTemplate.opsForValue().get(String.format("%s_running_info", clusterId));
         List<HostCluster> hostClusterList = hostClusterRepository.findAllByPodId(clusterId);
@@ -145,6 +170,8 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
         //得出数据
         clusterDetailInfoVORet.setAvgLoad(avgLoadBean);
+        clusterDetailInfoVORet.setStatus(RunStatusEnum.RUNNING.getCode());
+        clusterDetailInfoVORet.setStatusStr(RunStatusEnum.RUNNING.getMessage());
         String hostTreeFormat = yearDateFormat.format(new Date(clusterDetailInfoVORet.getCreateTime()));
 
         //开始构造HostInfo对象
@@ -209,7 +236,7 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
     @Override
     public ClusterDetailInfoVO.AvgLoadBean getOneContainerRunning(String ip, String containerId, Integer number) {
         String url = String.format("http://%s:8080/api/container/stat/?container_name=%s", ip, containerId);
-        ContainerStatus containerStatus = null;
+        ContainerStatus containerStatus;
         String redisKey = String.format("%s-%s-container", ip, containerId);
         ClusterDetailInfoVO.AvgLoadBean avgLoadBean = (ClusterDetailInfoVO.AvgLoadBean) redisTemplate.opsForValue().get(redisKey);
         ClusterDetailInfoVO.AvgLoadBean.CpuBean cpuBean;
@@ -228,15 +255,11 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
             avgLoadBean.setMem(memBean);
         }else{
             memBean = avgLoadBean.getMem();
-            log.info("【memBean】{}", memBean);
             cpuBean = avgLoadBean.getCpu();
-            log.info("【cpuBean】{}", cpuBean);
         }
-        //avgLoadBean.setCpu();
-        //avgLoadBean.setMem();
+
         String timeNow = simpleDateFormat.format(new Date());
         LinkedList<Double> memBeanData = memBean.getData();
-        log.info("【XXX】memBeanData={}", memBeanData);
         LinkedList<String> memBeanXAxis = memBean.getXAxis();
 
         LinkedList<Double> cpuBeanData = cpuBean.getData();
@@ -247,37 +270,33 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
         try {
             containerStatus = JSONObject.parseObject(IOUtils.toString(new URL(url))).getObject("data", ContainerStatus.class);
+            ContainerStatus.CpuStatsBean.CpuUsageBean cpu_usage = containerStatus.getCpu_stats().getCpu_usage();
+            long cpuDelta = cpu_usage.getTotal_usage() - averagePerUsage(cpu_usage.getPercpu_usage());
+            long system_cpu_usage = containerStatus.getCpu_stats().getSystem_cpu_usage();
+
+            //单容器CPU使用率和Mem使用率
+            cpuPercent = ((double)cpuDelta / system_cpu_usage);
+            memPercent = (double) containerStatus.getMemory_stats().getUsage() / containerStatus.getMemory_stats().getLimit();
+            BigDecimal bigDecimal = new BigDecimal(cpuPercent);
+            cpuPercent = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            bigDecimal = new BigDecimal(memPercent);
+            memPercent = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+            if(memBeanData.size() > 100){
+                memBeanData.removeLast();
+                memBeanXAxis.removeLast();
+            }
+            memBeanData.add(memPercent);
+            memBeanXAxis.add(timeNow);
+
+            if(cpuBeanData.size() > 100){
+                cpuBeanData.removeLast();
+                cpuBeanXAxis.removeLast();
+            }
+            cpuBeanData.add(cpuPercent);
+            cpuBeanXAxis.add(timeNow);
         } catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
-        log.info("【container info】{}", containerStatus);
-        log.info("【container info】{}", JSONObject.toJSONString(containerStatus));
-        ContainerStatus.CpuStatsBean.CpuUsageBean cpu_usage = containerStatus.getCpu_stats().getCpu_usage();
-        long cpuDelta = cpu_usage.getTotal_usage() - averagePerUsage(cpu_usage.getPercpu_usage());
-        long system_cpu_usage = containerStatus.getCpu_stats().getSystem_cpu_usage();
-        log.info("【CPU计算】cpuDelta={}, system_cpu_usage={}", cpuDelta, system_cpu_usage);
-        //单容器CPU使用率和Mem使用率
-        cpuPercent = ((double)cpuDelta / system_cpu_usage);
-        memPercent = (double) containerStatus.getMemory_stats().getUsage() / containerStatus.getMemory_stats().getLimit();
-        BigDecimal bigDecimal = new BigDecimal(cpuPercent);
-        cpuPercent = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-        bigDecimal = new BigDecimal(memPercent);
-        memPercent = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-
-
-        if(memBeanData.size() > 100){
-            memBeanData.removeLast();
-            memBeanXAxis.removeLast();
-        }
-        memBeanData.add(memPercent);
-        memBeanXAxis.add(timeNow);
-
-        if(cpuBeanData.size() > 100){
-            cpuBeanData.removeLast();
-            cpuBeanXAxis.removeLast();
-        }
-        cpuBeanData.add(cpuPercent);
-        cpuBeanXAxis.add(timeNow);
 
         memBean.setData(memBeanData);
         memBean.setXAxis(memBeanXAxis);
@@ -327,6 +346,7 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
             }
             test += num;
         }
+
         log.info("【ret】{}", ret);
         log.info("【ret】{}", test / per_cpu_usage.size());
         return ret;

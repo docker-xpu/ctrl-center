@@ -21,12 +21,12 @@ import xpu.ctrl.docker.core.ssh.DestHost;
 import xpu.ctrl.docker.core.ssh.SSHUtils;
 import xpu.ctrl.docker.entity.ClusterInfo;
 import xpu.ctrl.docker.entity.HostCluster;
+import xpu.ctrl.docker.enums.RunStatusEnum;
 import xpu.ctrl.docker.repository.ClusterInfoRepository;
 import xpu.ctrl.docker.repository.HostClusterRepository;
 import xpu.ctrl.docker.service.HostEntityService;
 import xpu.ctrl.docker.util.KeyUtil;
 import xpu.ctrl.docker.util.ResultVOUtil;
-import xpu.ctrl.docker.vo.ClusterDetailInfoVO;
 import xpu.ctrl.docker.vo.ClusterInfoVO;
 import xpu.ctrl.docker.vo.HostEntityVO;
 import xpu.ctrl.docker.vo.ResultVO;
@@ -56,12 +56,44 @@ public class ClusterController {
     @Autowired
     private HostEntityService hostEntityService;
 
-    @PostMapping("list")
-    public ResultVO list(){
-        List<ClusterInfo> repositoryAll = clusterInfoRepository.findAll();
-        //TODO xxx
-        List<ClusterDetailInfoVO> clusterDetailInfoVOList = Lists.newArrayList();
-        return ResultVOUtil.success(clusterDetailInfoVOList);
+    @PostMapping("stop")
+    public ResultVO stopAllContainerOfCluster(String cluster){
+        List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(cluster);
+        for(HostCluster hostCluster: allByPodId){
+            String containerName = hostCluster.getContainerName();
+            String clusterIp = hostCluster.getIp();
+            //containerController.delete(clusterIp, containerName, true);
+            containerController.stop(clusterIp, containerName);
+        }
+        Optional<ClusterInfo> clusterInfoOptional = clusterInfoRepository.findById(cluster);
+        if(clusterInfoOptional.isPresent()){
+            ClusterInfo clusterInfo = clusterInfoOptional.get();
+            String nginxName = clusterInfo.getNginxName();
+            containerController.stop("192.168.2.2", nginxName);
+            clusterInfo.setStatus(RunStatusEnum.STOP.getCode());
+            clusterInfoRepository.save(clusterInfo);
+        }
+
+        return ResultVOUtil.success();
+    }
+
+    @PostMapping("start")
+    public ResultVO startAllContainerOfCluster(String cluster){
+        List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(cluster);
+        for(HostCluster hostCluster: allByPodId){
+            String containerName = hostCluster.getContainerName();
+            String clusterIp = hostCluster.getIp();
+            containerController.start(clusterIp, containerName);
+        }
+        Optional<ClusterInfo> clusterInfoOptional = clusterInfoRepository.findById(cluster);
+        if(clusterInfoOptional.isPresent()){
+            ClusterInfo clusterInfo = clusterInfoOptional.get();
+            String nginxName = clusterInfo.getNginxName();
+            containerController.start("192.168.2.2", nginxName);
+            clusterInfo.setStatus(RunStatusEnum.RUNNING.getCode());
+            clusterInfoRepository.save(clusterInfo);
+        }
+        return ResultVOUtil.success();
     }
 
     @PostMapping("remove")
@@ -256,6 +288,8 @@ public class ClusterController {
         clusterInfoVO.setGateWayIp(gateWayHostIp);
         clusterInfoVO.setCreateTime(clusterInfo.getCreateTime());
         clusterInfoVO.setCreateTimeStr(""+clusterInfo.getCreateTime());
+        clusterInfoVO.setStatus(RunStatusEnum.RUNNING.getCode());
+        clusterInfoVO.setStatusStr(RunStatusEnum.RUNNING.getMessage());
         return ResultVOUtil.success(clusterInfoVO);
     }
 }

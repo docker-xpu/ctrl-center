@@ -27,6 +27,8 @@ public class ClusterDetailInfoVO implements Serializable {
     private Long createTime;
     private int nodeNumber;
     private int nodePort;
+    private Integer status;
+    private String statusStr;
     private String nginxName;
     private String gateWayIp;
     private AvgLoadBean avgLoad;

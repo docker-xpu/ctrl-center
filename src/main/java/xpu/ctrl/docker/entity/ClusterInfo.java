@@ -1,6 +1,7 @@
 package xpu.ctrl.docker.entity;
 
 import lombok.Data;
+import xpu.ctrl.docker.enums.RunStatusEnum;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -20,4 +21,6 @@ public class ClusterInfo {
     private String nginxName;
 
     private Long createTime;
+
+    private Integer status = RunStatusEnum.RUNNING.getCode();
 }

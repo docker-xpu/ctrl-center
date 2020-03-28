@@ -19,4 +19,7 @@ public class ClusterInfoVO {
     private String createTimeStr;
 
     private String gateWayIp;
+
+    private Integer status;
+    private String statusStr;
 }
