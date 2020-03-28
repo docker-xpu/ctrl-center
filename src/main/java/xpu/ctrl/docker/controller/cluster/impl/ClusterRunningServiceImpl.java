@@ -15,6 +15,7 @@ import xpu.ctrl.docker.entity.HostCluster;
 import xpu.ctrl.docker.repository.ClusterInfoRepository;
 import xpu.ctrl.docker.repository.HostClusterRepository;
 import xpu.ctrl.docker.vo.ClusterDetailInfoVO;
+import xpu.ctrl.docker.vo.HostTree;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Service
 public class ClusterRunningServiceImpl implements ClusterRunningService {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private ClusterInfoRepository clusterInfoRepository;
@@ -143,10 +145,13 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
         //得出数据
         clusterDetailInfoVORet.setAvgLoad(avgLoadBean);
+        String hostTreeFormat = yearDateFormat.format(new Date(clusterDetailInfoVORet.getCreateTime()));
 
         //开始构造HostInfo对象
         List<ClusterDetailInfoVO.HostsBean> retHostsBean = Lists.newArrayListWithCapacity(ipSet.size());
         ClusterDetailInfoVO.HostsBean hostsBean;
+        HostTree.ChildrenBeanX childrenBeanX;
+        List<HostTree.ChildrenBeanX> childrenBeanXList = Lists.newArrayList();
         for(String ip: ipSet){
             hostsBean = new ClusterDetailInfoVO.HostsBean();
             List<HostCluster> hostClusters = hostClusterRepository.findAllByPodIdAndIp(clusterId, ip);
@@ -154,8 +159,26 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
             List<String> collect = hostClusters.stream().map(HostCluster::getContainerName).collect(Collectors.toList());
             hostsBean.setContainers(collect);
             retHostsBean.add(hostsBean);
+
+            childrenBeanX = new HostTree.ChildrenBeanX();
+            childrenBeanX.setName(ip);
+            List<HostTree.ChildrenBeanX.ChildrenBean> childrenBeanList = Lists.newArrayList();
+            for(HostCluster hostCluster: hostClusters){
+                HostTree.ChildrenBeanX.ChildrenBean childrenBean = new HostTree.ChildrenBeanX.ChildrenBean();
+                childrenBean.setName(hostCluster.getContainerName());
+                childrenBean.setValue(hostTreeFormat);
+                childrenBeanList.add(childrenBean);
+            }
+            childrenBeanX.setChildren(childrenBeanList);
+            childrenBeanXList.add(childrenBeanX);
         }
         clusterDetailInfoVORet.setHosts(retHostsBean);
+
+        HostTree hostTree = new HostTree();
+        hostTree.setName(clusterDetailInfoVORet.getPodName());
+        hostTree.setChildren(childrenBeanXList);
+
+        clusterDetailInfoVORet.setHostTree(hostTree);
         redisTemplate.opsForValue().set(String.format("%s_running_info", clusterId), clusterDetailInfoVORet, 60 * 10, TimeUnit.SECONDS);
 
         //返回合适的avgLoadBean

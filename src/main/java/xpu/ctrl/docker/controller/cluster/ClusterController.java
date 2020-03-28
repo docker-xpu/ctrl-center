@@ -231,7 +231,7 @@ public class ClusterController {
         form.setHost_port(createForm.getHost_port());
         form.setCpu_shares(1024);
         form.setMemory(40000000);
-        form.setImage_name("nginx");
+        form.setImage_name("mynginx:0.1");
         form.setWorking_dir("/root");
 
         CreateFormBig createFormBig = new CreateFormBig();

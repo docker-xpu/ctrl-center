@@ -31,6 +31,7 @@ public class ClusterDetailInfoVO implements Serializable {
     private String gateWayIp;
     private AvgLoadBean avgLoad;
     private List<HostsBean> hosts;
+    private HostTree hostTree;
 
     @Data
     public static class AvgLoadBean implements Serializable{
