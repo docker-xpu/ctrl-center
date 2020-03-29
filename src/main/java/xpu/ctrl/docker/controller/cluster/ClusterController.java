@@ -150,7 +150,7 @@ public class ClusterController {
         int containerNum = 0;
 
         //同一个机子上多个容器
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 8; i++) {
             //2、新建容器并保存相关信息
             for(HostPort hostPort: hostPortList){
                 if(containerNum >= createForm.getContainer_num()) {
