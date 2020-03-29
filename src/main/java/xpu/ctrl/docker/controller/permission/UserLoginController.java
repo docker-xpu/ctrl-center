@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 public class UserLoginController {
     @PostMapping("login")
     public ResultVO userLogin(String userId, String password, HttpServletResponse httpServletResponse){
-
         if(userId.equals("admin")){
             if(password.equals("admin")){
                 Cookie cookie = new Cookie("userId", "admin");

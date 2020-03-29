@@ -24,6 +24,7 @@ public class PermissionHostInstanceController {
 
     @PostMapping("remove")
     public ResultVO removeHost(String ip, @CookieValue(value = "userId") String userId){
+        if(userId == null) return ResultVOUtil.error(1, "权限拒绝");
         if("admin".equals(userId)){
             return hostInstanceController.removeHost(ip);
         }else {
