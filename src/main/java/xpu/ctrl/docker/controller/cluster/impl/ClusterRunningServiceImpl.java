@@ -63,6 +63,7 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
         Optional<ClusterInfo> clusterInfoOptional = clusterInfoRepository.findById(clusterId);
         if(clusterInfoOptional.isPresent()){
             ClusterInfo clusterInfo = clusterInfoOptional.get();
+            log.error("【XXX】{}", clusterInfo);
             if(clusterInfo.getStatus().equals(RunStatusEnum.STOP.getCode())){
                 ClusterDetailInfoVO clusterDetailInfoVO = new ClusterDetailInfoVO();
                 BeanUtils.copyProperties(clusterInfo, clusterDetailInfoVO);
@@ -206,6 +207,8 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
         hostTree.setChildren(childrenBeanXList);
 
         clusterDetailInfoVORet.setHostTree(hostTree);
+
+        clusterDetailInfoVORet.setNodeNumber(clusterInfoOptional.get().getNodeNumber());
         redisTemplate.opsForValue().set(String.format("%s_running_info", clusterId), clusterDetailInfoVORet, 60 * 10, TimeUnit.SECONDS);
 
         //返回合适的avgLoadBean
