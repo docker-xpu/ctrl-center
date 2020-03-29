@@ -63,7 +63,6 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
         Optional<ClusterInfo> clusterInfoOptional = clusterInfoRepository.findById(clusterId);
         if(clusterInfoOptional.isPresent()){
             ClusterInfo clusterInfo = clusterInfoOptional.get();
-            log.error("【XXX】{}", clusterInfo);
             if(clusterInfo.getStatus().equals(RunStatusEnum.STOP.getCode())){
                 ClusterDetailInfoVO clusterDetailInfoVO = new ClusterDetailInfoVO();
                 BeanUtils.copyProperties(clusterInfo, clusterDetailInfoVO);
@@ -129,12 +128,9 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
             String url = String.format("http://%s:8080/api/container/stat/?container_name=%s", hostCluster.getIp(), hostCluster.getContainerName());
             try {
                 ContainerStatus containerStatus = JSONObject.parseObject(IOUtils.toString(new URL(url))).getObject("data", ContainerStatus.class);
-                log.info("【container info】{}", containerStatus);
-                log.info("【container info】{}", JSONObject.toJSONString(containerStatus));
                 ContainerStatus.CpuStatsBean.CpuUsageBean cpu_usage = containerStatus.getCpu_stats().getCpu_usage();
                 long cpuDelta = cpu_usage.getTotal_usage() - averagePerUsage(cpu_usage.getPercpu_usage());
                 long system_cpu_usage = containerStatus.getCpu_stats().getSystem_cpu_usage();
-                log.info("【CPU计算】cpuDelta={}, system_cpu_usage={}", cpuDelta, system_cpu_usage);
                 //单容器CPU使用率和Mem使用率
                 cpuPercent = (((double)cpuDelta / system_cpu_usage) + cpuPercent) / 2;
                 BigDecimal bigDecimal = new BigDecimal(cpuPercent);
@@ -340,18 +336,13 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
     private long averagePerUsage(List<Long> per_cpu_usage) {
         long ret = 0;
-        long test = 0;
         for(Long num: per_cpu_usage){
             if(ret < num){
                 ret = (num - ret)/2 + ret;
             }else{
                 ret = (ret - num)/2 + num;
             }
-            test += num;
         }
-
-        log.info("【ret】{}", ret);
-        log.info("【ret】{}", test / per_cpu_usage.size());
         return ret;
     }
 
