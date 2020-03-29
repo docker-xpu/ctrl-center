@@ -5,24 +5,74 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import xpu.ctrl.docker.controller.RemoteRepositoryContants;
+import xpu.ctrl.docker.entity.ContainerCreate;
+import xpu.ctrl.docker.repository.ContainerCreateRepository;
 import xpu.ctrl.docker.util.ResultVOUtil;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import java.io.IOException;
 
+
 @Slf4j
 @RestController
 @RequestMapping("/container")
 public class ContainerController {
-    @GetMapping("list")
-    public ResultVO list(){
-        return ResultVOUtil.success();
+    @Autowired
+    private ContainerCreateRepository containerCreateRepository;
+
+    public void createForCluster(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig, String clusterId){
+        String pullUrl = String.format("http://%s:8080//api/image/pull", createFormBig.getIp());
+        OkHttpClient okHttpClientPull = new OkHttpClient();
+        String imageName = String.format("%s:5000/%s", RemoteRepositoryContants.REPOSITORY_IP, createFormBig.getCreateForm().getImage_name());
+        String pullJsonArgs = String.format("{\"image_name\":\"%s\"}", imageName);
+        RequestBody requestBodyPull = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), pullJsonArgs);
+
+        //存储创建容器的表单
+        ContainerCreate containerCreate = new ContainerCreate();
+        containerCreate.setCreateFrom(JSONObject.toJSONString(createFormBig));
+        containerCreate.setContainerName(createFormBig.getIp() + createFormBig.getCreateForm().getContainer_name());
+        containerCreate.setHostIp(createFormBig.getIp());
+        containerCreate.setClusterId(clusterId);
+        containerCreateRepository.save(containerCreate);
+
+        Request requestPull = new Request.Builder().post(requestBodyPull).url(pullUrl).build();
+        try {
+            Response response = okHttpClientPull.newCall(requestPull).execute();
+            String responseString = response.body().string();
+            Integer status = JSONObject.parseObject(responseString).getInteger("status");
+            log.error("【Not error】responseString={}", responseString);
+            if(!status.equals(0)) return;
+        } catch (IOException e) {
+            e.printStackTrace();
+            JSON.toJSONString(ResultVOUtil.error(-1, "网络错误【拉取镜像】"));
+            return;
+        }
+
+        CreateForm createForm = createFormBig.getCreateForm();
+        String ip = createFormBig.getIp();
+        createForm.setImage_name(imageName);
+        String url = String.format("http://%s:8080//api/container/create/", ip);
+        OkHttpClient okHttpClient = new OkHttpClient();
+        String upFrom = JSONObject.toJSONString(createForm);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), upFrom);
+        Request request = new Request.Builder().post(requestBody).url(url).build();
+        try {
+            Response execute = okHttpClient.newCall(request).execute();
+            ResponseBody responseBody = execute.body();
+            String string = responseBody.string();
+            log.info("【responseBody】{}", string);
+            if(execute.isSuccessful()) return;
+        } catch (IOException e) {
+            JSONObject.toJSONString(ResultVOUtil.error(1, "网络异常，创建失败"));
+            return;
+        }
+        JSONObject.toJSONString(ResultVOUtil.error(2, "网络异常，创建失败"));
     }
 
     @PostMapping("create")
@@ -32,14 +82,20 @@ public class ContainerController {
         String imageName = String.format("%s:5000/%s", RemoteRepositoryContants.REPOSITORY_IP, createFormBig.getCreateForm().getImage_name());
         String pullJsonArgs = String.format("{\"image_name\":\"%s\"}", imageName);
         RequestBody requestBodyPull = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), pullJsonArgs);
-        log.info("【String.format结果】{}", pullJsonArgs);
-        //139.159.254.242:5000/ahojcn/myngx:0.1
+
+        //存储创建容器的表单
+        ContainerCreate containerCreate = new ContainerCreate();
+        containerCreate.setCreateFrom(JSONObject.toJSONString(createFormBig));
+        containerCreate.setContainerName(createFormBig.getIp() + createFormBig.getCreateForm().getContainer_name());
+        containerCreate.setHostIp(createFormBig.getIp());
+        containerCreate.setClusterId(null);
+        containerCreateRepository.save(containerCreate);
+
         Request requestPull = new Request.Builder().post(requestBodyPull).url(pullUrl).build();
         try {
             Response response = okHttpClientPull.newCall(requestPull).execute();
             String responseString = response.body().string();
             Integer status = JSONObject.parseObject(responseString).getInteger("status");
-            log.error("【Not error】responseString={}", responseString);
             if(!status.equals(0)) return responseString;
         } catch (IOException e) {
             e.printStackTrace();
@@ -48,19 +104,16 @@ public class ContainerController {
 
         CreateForm createForm = createFormBig.getCreateForm();
         String ip = createFormBig.getIp();
-        log.info("【创建容器参数】{} {}", createForm, ip);
         createForm.setImage_name(imageName);
         String url = String.format("http://%s:8080//api/container/create/", ip);
         OkHttpClient okHttpClient = new OkHttpClient();
         String upFrom = JSONObject.toJSONString(createForm);
-        log.info("【upFrom】"+upFrom);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), upFrom);
         Request request = new Request.Builder().post(requestBody).url(url).build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
             ResponseBody responseBody = execute.body();
             String string = responseBody.string();
-            log.info("【responseBody】={}", string);
             if(execute.isSuccessful()) return string;
         } catch (IOException e) {
             return JSONObject.toJSONString(ResultVOUtil.error(1, "网络异常，创建失败"));
@@ -68,14 +121,11 @@ public class ContainerController {
         return JSONObject.toJSONString(ResultVOUtil.error(2, "网络异常，创建失败"));
     }
 
-
-
     @PostMapping("start")
     public ResultVO start(String ip, String container_name){
         String url = String.format("http://%s:8080/api/container/start", ip);
         OkHttpClient okHttpClient = new OkHttpClient();
         ContainerForm containerForm = new ContainerForm(container_name);
-
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JSON.toJSONString(containerForm));
         Request request = new Request.Builder().post(requestBody).url(url).build();
         try {
@@ -114,7 +164,10 @@ public class ContainerController {
         Request request = new Request.Builder().post(requestBody).url(url).build();
         try {
             Response execute = okHttpClient.newCall(request).execute();
-            if(execute.isSuccessful()) return ResultVOUtil.success();
+            if(execute.isSuccessful()) {
+                containerCreateRepository.deleteById(ip + container_name);
+                return ResultVOUtil.success();
+            }
             return ResultVOUtil.error(1, "删除失败");
         } catch (IOException e) {
             e.printStackTrace();

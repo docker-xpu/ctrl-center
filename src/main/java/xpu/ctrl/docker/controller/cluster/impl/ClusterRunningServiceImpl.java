@@ -307,7 +307,6 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
 
         redisTemplate.opsForValue().set(redisKey, avgLoadBean, 60*10, TimeUnit.SECONDS);
 
-        //无需执行操作
         if(number > 0){
             //返回合适的avgLoadBean
             LinkedList<Double> cpuData = avgLoadBean.getCpu().getData();
@@ -345,7 +344,4 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
         }
         return ret;
     }
-
-
-
 }

@@ -215,7 +215,7 @@ public class ClusterController {
                 createFormBig.setIp(hostIp);
                 createFormBig.setCreateForm(form);
                 //创建容器
-                containerController.create(createFormBig);
+                containerController.createForCluster(createFormBig, verifyKey);
                 containerNum++;
                 //启动全部容器
                 containerController.start(hostIp, containerName);
@@ -326,7 +326,6 @@ public class ClusterController {
         return ResultVOUtil.success(clusterInfoVO);
     }
 
-
     //Clone from createOneCluster
     public ResultVO changeOneCluster(CreateClusterForm createForm, String clusterId) throws Exception{
         log.info("【Args】{}", JSONObject.toJSONString(createForm));
@@ -397,7 +396,7 @@ public class ClusterController {
                 createFormBig.setIp(hostIp);
                 createFormBig.setCreateForm(form);
                 //创建容器
-                containerController.create(createFormBig);
+                containerController.createForCluster(createFormBig, clusterId);
                 containerNum++;
                 //启动全部容器
                 containerController.start(hostIp, containerName);
@@ -513,31 +512,6 @@ public class ClusterController {
 class HostPort{
     HostEntityVO hostEntityVO;
     List<Integer> portList;
-}
-
-
-@Data
-class CreateClusterForm{
-
-    /**
-     * pod_name : AAA
-     * image_name : nginx
-     * container_num : 3
-     * volumes : [{"host_volume":"/root","container_volume":"/root"},{"host_volume":"/root","container_volume":"/root"}]
-     * run_command : tar -zxvf && cd /root/
-     * container_port : 80
-     * host_port : 8085
-     * container_port_proto :
-     */
-
-    private String pod_name;
-    private String image_name;
-    private int container_num;
-    private List<String> run_command;
-    private String container_port;
-    private String host_port;
-    private String container_port_proto;
-    private List<xpu.ctrl.docker.controller.container.CreateForm.VolumesBean> volumes;
 }
 
 @Data

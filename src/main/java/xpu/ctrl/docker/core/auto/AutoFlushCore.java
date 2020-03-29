@@ -8,6 +8,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import xpu.ctrl.docker.controller.cluster.ClusterRunningController;
 import xpu.ctrl.docker.controller.cluster.ClusterRunningService;
+import xpu.ctrl.docker.controller.dispatch.DispatchService;
 import xpu.ctrl.docker.core.flush.FlushHostInfoService;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.repository.HostEntityRepository;
@@ -36,6 +37,9 @@ public class AutoFlushCore implements ApplicationRunner {
 
     @Autowired
     private ClusterRunningService clusterRunningService;
+
+    @Autowired
+    private DispatchService dispatchService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -84,18 +88,31 @@ public class AutoFlushCore implements ApplicationRunner {
         }).start();
 
         new Thread(()->{
-            clusterRunningController.getAllRunningVO(100);
-            try {
-                TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (true){
+                clusterRunningController.getAllRunningVO(100);
+                try {
+                    TimeUnit.SECONDS.sleep(60);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
 
         new Thread(()->{
-            clusterRunningService.saveAllClusterContainerRunningInfo();
+            while (true){
+                clusterRunningService.saveAllClusterContainerRunningInfo();
+                try {
+                    TimeUnit.SECONDS.sleep(60);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(()->{
+            dispatchService.autoMonitorContainer();
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(60);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
