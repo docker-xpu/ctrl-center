@@ -2,6 +2,7 @@ package xpu.ctrl.docker.controller.permission;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import xpu.ctrl.docker.controller.cluster.*;
 
@@ -16,8 +17,10 @@ public class PermissionClusterController {
     private ClusterController clusterController;
 
     @PostMapping("adjust")
-    public ResultVO adjustContainerOfCluster(String clusterId, Integer newSize,
-                                             @CookieValue(value = "userId") String userId){
+    public ResultVO adjustContainerOfCluster(String clusterId, Integer newSize, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return clusterController.adjustContainerOfCluster(clusterId, newSize);
         }else {
@@ -26,8 +29,11 @@ public class PermissionClusterController {
     }
 
     @PostMapping("stop")
-    public ResultVO stopAllContainerOfCluster(String cluster,
-                                              @CookieValue(value = "userId") String userId){
+    public ResultVO stopAllContainerOfCluster(String cluster, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
+
         if("admin".equals(userId)){
             return clusterController.stopAllContainerOfCluster(cluster);
         }else {
@@ -36,7 +42,10 @@ public class PermissionClusterController {
     }
 
     @PostMapping("start")
-    public ResultVO startAllContainerOfCluster(String cluster, @CookieValue(value = "userId") String userId){
+    public ResultVO startAllContainerOfCluster(String cluster, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return clusterController.startAllContainerOfCluster(cluster);
         }else {
@@ -45,7 +54,10 @@ public class PermissionClusterController {
     }
 
     @PostMapping("remove")
-    public ResultVO remove(String cluster, @CookieValue(value = "userId") String userId){
+    public ResultVO remove(String cluster, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return clusterController.remove(cluster);
         }else {
@@ -54,7 +66,10 @@ public class PermissionClusterController {
     }
 
     @PostMapping("create")
-    public ResultVO createOneCluster(@RequestBody CreateClusterForm createForm, @CookieValue(value = "userId") String userId) throws Exception{
+    public ResultVO createOneCluster(@RequestBody CreateClusterForm createForm, @CookieValue(value = "userId", required = false) String userId) throws Exception{
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return clusterController.createOneCluster(createForm);
         }else {

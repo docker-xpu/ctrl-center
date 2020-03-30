@@ -23,7 +23,7 @@ public class PermissionHostInstanceController {
     private HostInstanceController hostInstanceController;
 
     @PostMapping("remove")
-    public ResultVO removeHost(String ip, @CookieValue(value = "userId") String userId){
+    public ResultVO removeHost(String ip, @CookieValue(value = "userId", required = false) String userId){
         if(userId == null) return ResultVOUtil.error(1, "权限拒绝");
         if("admin".equals(userId)){
             return hostInstanceController.removeHost(ip);

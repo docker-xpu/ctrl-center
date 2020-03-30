@@ -2,7 +2,6 @@ package xpu.ctrl.docker.controller.permission;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import xpu.ctrl.docker.util.ResultVOUtil;
@@ -15,7 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/user")
 public class UserLoginController {
-    @PostMapping("login")
+
+    @RequestMapping("login")
     public ResultVO userLogin(String userId, String password, HttpServletResponse httpServletResponse){
         if(userId.equals("admin")){
             if(password.equals("admin")){
@@ -43,6 +43,7 @@ public class UserLoginController {
     @GetMapping("logout")
     public ResultVO logout(HttpServletResponse httpServletResponse){
         Cookie cookie = new Cookie("userId", "");
+        cookie.setPath("/");
         cookie.setMaxAge(0);
         httpServletResponse.addCookie(cookie);
         return ResultVOUtil.success("登出成功");

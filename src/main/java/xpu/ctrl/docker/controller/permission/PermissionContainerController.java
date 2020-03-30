@@ -3,6 +3,7 @@ package xpu.ctrl.docker.controller.permission;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,11 @@ public class PermissionContainerController {
 
     @PostMapping("create")
     public String create(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig,
-                         @CookieValue(value = "userId") String userId){
+                         @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return JSONObject.toJSONString(ResultVOUtil.error(2, "请先登录"));
+        }
+
         if("admin".equals(userId)){
             return containerController.create(createFormBig);
         }else {
@@ -29,7 +34,10 @@ public class PermissionContainerController {
     }
 
     @PostMapping("start")
-    public ResultVO start(String ip, String container_name, @CookieValue(value = "userId") String userId){
+    public ResultVO start(String ip, String container_name, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return containerController.start(ip, container_name);
         }else {
@@ -38,7 +46,10 @@ public class PermissionContainerController {
     }
 
     @PostMapping("stop")
-    public ResultVO stop(String ip, String container_name, @CookieValue(value = "userId") String userId){
+    public ResultVO stop(String ip, String container_name, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return containerController.stop(ip, container_name);
         }else {
@@ -47,7 +58,10 @@ public class PermissionContainerController {
     }
 
     @PostMapping("delete")
-    public ResultVO delete(String ip, String container_name, Boolean bol, @CookieValue(value = "userId") String userId){
+    public ResultVO delete(String ip, String container_name, Boolean bol, @CookieValue(value = "userId", required = false) String userId){
+        if(userId == null || StringUtils.isEmpty(userId)){
+            return ResultVOUtil.error(2, "请先登录");
+        }
         if("admin".equals(userId)){
             return containerController.delete(ip, container_name, bol);
         }else {
