@@ -196,6 +196,7 @@ class Migrate{
     private String oldPort;
     private String oldIp;
     private String newPort;
+
     private String newIp;
     private String containerName;
 }
