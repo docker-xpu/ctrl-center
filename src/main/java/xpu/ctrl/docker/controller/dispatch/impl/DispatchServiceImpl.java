@@ -13,6 +13,7 @@ import xpu.ctrl.docker.controller.container.ContainerController;
 import xpu.ctrl.docker.controller.container.CreateForm;
 import xpu.ctrl.docker.controller.container.CreateFormBig;
 import xpu.ctrl.docker.controller.dispatch.DispatchService;
+import xpu.ctrl.docker.controller.email.EmailService;
 import xpu.ctrl.docker.entity.ContainerCreate;
 import xpu.ctrl.docker.entity.HostCluster;
 import xpu.ctrl.docker.entity.HostEntity;
@@ -24,6 +25,7 @@ import xpu.ctrl.docker.vo.HostEntityVO;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -48,6 +50,9 @@ public class DispatchServiceImpl implements DispatchService {
 
     @Autowired
     private MigrateInfoRepository migrateInfoRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public void autoMonitorContainer() {
@@ -105,6 +110,9 @@ public class DispatchServiceImpl implements DispatchService {
 
                 //删除原来的绑定地址
                 containerCreateRepository.deleteById(oldIp + createFormBig.getCreateForm().getContainer_name());
+                emailService.sendSimpleMessage("ahojcn@qq.com", "容器调度变迁",
+                        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "\n" +
+                        migrateInfo.getMigrateLog());
             }else{
 //                if(clusterSet.add(clusterId)){
 //                    //之前没存
