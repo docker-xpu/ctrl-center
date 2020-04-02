@@ -139,7 +139,7 @@ public class ClusterRunningServiceImpl implements ClusterRunningService {
                 bigDecimal = new BigDecimal(memPercent);
                 memPercent = bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
         if(memDoubleLinked.size() >= 100) {

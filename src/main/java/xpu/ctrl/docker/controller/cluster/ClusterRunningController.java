@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import xpu.ctrl.docker.entity.ClusterInfo;
-import xpu.ctrl.docker.enums.RunStatusEnum;
 import xpu.ctrl.docker.repository.ClusterInfoRepository;
 import xpu.ctrl.docker.util.ResultVOUtil;
 import xpu.ctrl.docker.vo.ClusterDetailInfoVO;
@@ -34,7 +33,6 @@ public class ClusterRunningController {
 
     @GetMapping("get-all")
     public ResultVO getAllRunningVO(@RequestParam(required = false, defaultValue = "100") Integer number){
-        //List<ClusterInfo> all = clusterInfoRepository.findAllByStatus(RunStatusEnum.RUNNING.getCode());
         List<ClusterInfo> all = clusterInfoRepository.findAll();
         List<ClusterDetailInfoVO> clusterDetailInfoVOList = Lists.newArrayListWithCapacity(all.size());
         for (ClusterInfo clusterInfo: all){

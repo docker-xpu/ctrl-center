@@ -15,7 +15,6 @@ import xpu.ctrl.docker.controller.container.CreateFormBig;
 import xpu.ctrl.docker.controller.dispatch.DispatchService;
 import xpu.ctrl.docker.controller.email.EmailService;
 import xpu.ctrl.docker.entity.ContainerCreate;
-import xpu.ctrl.docker.entity.HostCluster;
 import xpu.ctrl.docker.entity.HostEntity;
 import xpu.ctrl.docker.entity.MigrateInfo;
 import xpu.ctrl.docker.enums.RunStatusEnum;
@@ -43,12 +42,6 @@ public class DispatchServiceImpl implements DispatchService {
     private HostEntityService hostEntityService;
 
     @Autowired
-    private ClusterInfoRepository clusterInfoRepository;
-
-    @Autowired
-    private HostClusterRepository hostClusterRepository;
-
-    @Autowired
     private MigrateInfoRepository migrateInfoRepository;
 
     @Autowired
@@ -62,9 +55,9 @@ public class DispatchServiceImpl implements DispatchService {
             String hostIp = hostEntity.getHostIp();
             needMigrateContainer.addAll(containerCreateRepository.findAllByHostIp(hostIp));
         }
-        Set<String> clusterSet = new HashSet<>();
-        Map<String, List<Migrate>> clusterIpAndPort = new HashMap<>();
-        List<Migrate> list;
+//        Set<String> clusterSet = new HashSet<>();
+//        Map<String, List<Migrate>> clusterIpAndPort = new HashMap<>();
+//        List<Migrate> list;
         //拿到了需要迁移的容器（非集群容器 + 集群容器）
         for(ContainerCreate containerCreate: needMigrateContainer){
             String clusterId = containerCreate.getClusterId();
@@ -95,11 +88,12 @@ public class DispatchServiceImpl implements DispatchService {
 
                 //记录迁移日志
                 String migrateResult = containerController.create(createFormBig);
+                System.out.println(migrateResult);
                 MigrateInfo migrateInfo = new MigrateInfo();
                 migrateInfo.setMigrateId(System.currentTimeMillis());
-                migrateInfo.setMigrateLog(String.format("单容器迁移 [src-IPAndPort :%s:%s --> desc-IPAndPort:%s:%s], %s",
+                migrateInfo.setMigrateLog(String.format("单容器迁移 [src-IPAndPort :%s:%s --> desc-IPAndPort:%s:%s]",
                         oldIp, oldHostPort,
-                        newIp, newPort, migrateResult));
+                        newIp, newPort));
                 migrateInfoRepository.save(migrateInfo);
 
                 //开始迁移
@@ -170,6 +164,7 @@ public class DispatchServiceImpl implements DispatchService {
 //                Migrate migrate = new Migrate(clusterId, oldHostPort, oldIp, newPort+"", newIp, createFormBig.getCreateForm().getContainer_name());
 //                list.add(migrate);
 //                clusterIpAndPort.put(clusterId, list);
+                System.out.println("");
             }
         }
 //        //重新配置网关

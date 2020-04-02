@@ -110,11 +110,13 @@ public class AutoFlushCore implements ApplicationRunner {
         }).start();
 
         new Thread(()->{
-            dispatchService.autoMonitorContainer();
-            try {
-                TimeUnit.SECONDS.sleep(60);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (true){
+                try {
+                    TimeUnit.SECONDS.sleep(60);
+                    dispatchService.autoMonitorContainer();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
     }

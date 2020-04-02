@@ -44,6 +44,7 @@ public class MirrorImagesController {
     // 下载文件
     @GetMapping("pull")
     public ResponseEntity<Object> serveFile(String id) {
+
         Optional<ImageFile> file = fileService.getBigFileById(id);
         return file.<ResponseEntity<Object>>map(value -> ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; fileName=" + new String(

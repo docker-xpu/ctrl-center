@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import xpu.ctrl.docker.util.ResultVOUtil;
 import xpu.ctrl.docker.vo.ResultVO;
 
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 
 @Slf4j
@@ -25,6 +28,17 @@ import java.io.IOException;
 public class ContainerController {
     @Autowired
     private ContainerCreateRepository containerCreateRepository;
+
+    @RequestMapping("logs")
+    public String getOneContainerLog(String ip, String container_name){
+        String url = String.format("http://%s:8080//api/container/logs?container_name=%s", ip, container_name);
+        try {
+            return IOUtils.toString(new URL(url), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return JSONObject.toJSONString(ResultVOUtil.error(1, "容器离线"));
+        }
+    }
 
     public void createForCluster(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig, String clusterId){
         String pullUrl = String.format("http://%s:8080//api/image/pull", createFormBig.getIp());
@@ -165,7 +179,7 @@ public class ContainerController {
         try {
             Response execute = okHttpClient.newCall(request).execute();
             if(execute.isSuccessful()) {
-                containerCreateRepository.deleteById(ip + container_name);
+                //containerCreateRepository.deleteById(ip + container_name);
                 return ResultVOUtil.success();
             }
             return ResultVOUtil.error(1, "删除失败");
