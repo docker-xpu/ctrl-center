@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,7 +60,7 @@ public class ClusterController {
     @Autowired
     private CreateArgsFormRepository createArgsFormRepository;
 
-    @PostMapping("adjust")
+    @RequestMapping("adjust")
     public ResultVO adjustContainerOfCluster(String clusterId, Integer newSize){
         //移除ALL主机上的容器
         Optional<CreateArgsForm> argsFormOptional = createArgsFormRepository.findById(clusterId);
@@ -82,7 +81,7 @@ public class ClusterController {
         }
     }
 
-    @PostMapping("stop")
+    @RequestMapping("stop")
     public ResultVO stopAllContainerOfCluster(String cluster){
         List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(cluster);
         for(HostCluster hostCluster: allByPodId){
@@ -103,7 +102,7 @@ public class ClusterController {
         return ResultVOUtil.success();
     }
 
-    @PostMapping("start")
+    @RequestMapping("start")
     public ResultVO startAllContainerOfCluster(String cluster){
         List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(cluster);
         for(HostCluster hostCluster: allByPodId){
@@ -122,7 +121,7 @@ public class ClusterController {
         return ResultVOUtil.success();
     }
 
-    @PostMapping("remove")
+    @RequestMapping("remove")
     public ResultVO remove(String cluster){
         //先把节点删除
         List<HostCluster> allByPodId = hostClusterRepository.findAllByPodId(cluster);
@@ -144,7 +143,7 @@ public class ClusterController {
         return ResultVOUtil.success();
     }
 
-    @PostMapping("create")
+    @RequestMapping("create")
     public ResultVO createOneCluster(@RequestBody CreateClusterForm createForm) throws Exception{
         log.info("【Args】{}", JSONObject.toJSONString(createForm));
         //0、获取可用主机（按负载排个序）
@@ -296,7 +295,7 @@ public class ClusterController {
         form.setHost_port(createForm.getHost_port());
         form.setCpu_shares(1024);
         form.setMemory(40000000);
-        form.setImage_name("mynginx:0.1");
+        form.setImage_name("nginx:1.0");
         form.setWorking_dir("/root");
 
         CreateFormBig createFormBig = new CreateFormBig();
@@ -477,7 +476,7 @@ public class ClusterController {
         form.setHost_port(createForm.getHost_port());
         form.setCpu_shares(1024);
         form.setMemory(40000000);
-        form.setImage_name("mynginx:0.1");
+        form.setImage_name("192.168.2.2:5000/nginx:1.0");
         form.setWorking_dir("/root");
 
         CreateFormBig createFormBig = new CreateFormBig();

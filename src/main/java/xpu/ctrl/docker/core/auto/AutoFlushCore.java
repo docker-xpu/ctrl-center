@@ -112,7 +112,8 @@ public class AutoFlushCore implements ApplicationRunner {
         new Thread(()->{
             while (true){
                 try {
-                    TimeUnit.SECONDS.sleep(60);
+                    TimeUnit.SECONDS.sleep(10);
+                    System.out.println("检测存活");
                     dispatchService.autoMonitorContainer();
                 } catch (InterruptedException e) {
                     e.printStackTrace();

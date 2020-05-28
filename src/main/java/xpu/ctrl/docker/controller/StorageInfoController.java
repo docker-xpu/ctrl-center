@@ -20,6 +20,7 @@ public class StorageInfoController {
     @Autowired
     private StorageInfoRepository storageInfoRepository;
 
+    //Push到Server
     @PostMapping("push")
     public ResultVO storageIn(String storage){
         StorageInfo storageInfo = new StorageInfo();

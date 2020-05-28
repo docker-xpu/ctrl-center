@@ -43,7 +43,8 @@ public class ContainerController {
     public void createForCluster(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig, String clusterId){
         String pullUrl = String.format("http://%s:8080//api/image/pull", createFormBig.getIp());
         OkHttpClient okHttpClientPull = new OkHttpClient();
-        String imageName = String.format("%s:5000/%s", RemoteRepositoryContants.REPOSITORY_IP, createFormBig.getCreateForm().getImage_name());
+        //String imageName = String.format("%s:5000/%s", RemoteRepositoryContants.REPOSITORY_IP, createFormBig.getCreateForm().getImage_name());
+        String imageName = "nginx";
         String pullJsonArgs = String.format("{\"image_name\":\"%s\"}", imageName);
         RequestBody requestBodyPull = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), pullJsonArgs);
 
@@ -55,22 +56,22 @@ public class ContainerController {
         containerCreate.setClusterId(clusterId);
         containerCreateRepository.save(containerCreate);
 
-        Request requestPull = new Request.Builder().post(requestBodyPull).url(pullUrl).build();
-        try {
-            Response response = okHttpClientPull.newCall(requestPull).execute();
-            String responseString = response.body().string();
-            Integer status = JSONObject.parseObject(responseString).getInteger("status");
-            log.error("【Not error】responseString={}", responseString);
-            if(!status.equals(0)) return;
-        } catch (IOException e) {
-            e.printStackTrace();
-            JSON.toJSONString(ResultVOUtil.error(-1, "网络错误【拉取镜像】"));
-            return;
-        }
+        //Request requestPull = new Request.Builder().post(requestBodyPull).url(pullUrl).build();
+//        try {
+//            Response response = okHttpClientPull.newCall(requestPull).execute();
+//            String responseString = response.body().string();
+//            Integer status = JSONObject.parseObject(responseString).getInteger("status");
+//            log.error("【Not error】responseString={}", responseString);
+//            if(!status.equals(0)) return;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            JSON.toJSONString(ResultVOUtil.error(-1, "网络错误【拉取镜像】"));
+//            return;
+//        }
 
         CreateForm createForm = createFormBig.getCreateForm();
         String ip = createFormBig.getIp();
-        createForm.setImage_name(imageName);
+        createForm.setImage_name("nginx:latest");
         String url = String.format("http://%s:8080//api/container/create/", ip);
         OkHttpClient okHttpClient = new OkHttpClient();
         String upFrom = JSONObject.toJSONString(createForm);
@@ -89,7 +90,7 @@ public class ContainerController {
         JSONObject.toJSONString(ResultVOUtil.error(2, "网络异常，创建失败"));
     }
 
-    @PostMapping("create")
+    @RequestMapping("create")
     public String create(@org.springframework.web.bind.annotation.RequestBody CreateFormBig createFormBig){
         String pullUrl = String.format("http://%s:8080//api/image/pull", createFormBig.getIp());
         OkHttpClient okHttpClientPull = new OkHttpClient();
@@ -135,7 +136,7 @@ public class ContainerController {
         return JSONObject.toJSONString(ResultVOUtil.error(2, "网络异常，创建失败"));
     }
 
-    @PostMapping("start")
+    @RequestMapping("start")
     public ResultVO start(String ip, String container_name){
         String url = String.format("http://%s:8080/api/container/start", ip);
         OkHttpClient okHttpClient = new OkHttpClient();

@@ -45,24 +45,4 @@ public class ImageController {
             return ResultVOUtil.error(2, "删除失败");
         }
     }
-
-    public static void main(String[] args) {
-        String url = "http://zouchanglin.cn/info/remove";
-        OkHttpClient okHttpClient = new OkHttpClient();
-        RequestBody requestBody = new FormBody.Builder()
-                .add("id", "0010003004").build();
-        Request request = new Request.Builder().delete(requestBody).url(url).build();
-        Call call = okHttpClient.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-            }
-        });
-    }
 }

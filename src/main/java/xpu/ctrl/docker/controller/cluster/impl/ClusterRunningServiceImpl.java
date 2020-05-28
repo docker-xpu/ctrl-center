@@ -29,8 +29,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class ClusterRunningServiceImpl implements ClusterRunningService {
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
-    private static SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat yearDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private ClusterInfoRepository clusterInfoRepository;
